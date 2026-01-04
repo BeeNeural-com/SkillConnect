@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple gradient background - Flutter splash will show text -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Gradient background only -->
+    <item android:drawable="@drawable/splash_gradient" />
+</layer-list>
