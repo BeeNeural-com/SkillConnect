@@ -13,6 +13,7 @@ import 'service_request_screen.dart';
 import 'booking_detail_screen.dart';
 import 'customer_profile_screen.dart';
 import '../../shared/screens/notifications_screen.dart';
+import 'chatbot_screen.dart';
 
 class CustomerHomeScreen extends ConsumerWidget {
   const CustomerHomeScreen({super.key});
@@ -23,6 +24,21 @@ class CustomerHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ChatbotScreen()),
+          );
+        },
+        backgroundColor: AppTheme.primaryColor,
+        icon: const Icon(Icons.smart_toy_rounded, color: Colors.white),
+        label: const Text(
+          'AI Assistant',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
+        elevation: 4,
+      ),
       body: userAsync.when(
         data: (user) {
           if (user == null) {
