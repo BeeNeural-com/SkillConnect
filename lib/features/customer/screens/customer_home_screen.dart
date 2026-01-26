@@ -8,18 +8,93 @@ import '../../../providers/booking_provider.dart';
 import '../../../providers/notification_provider.dart';
 import '../../../models/booking_model.dart';
 import '../../shared/widgets/loading_widget.dart';
-import '../../auth/screens/login_screen.dart';
+import '../../auth/screens/google_signin_screen.dart';
 import 'service_request_screen.dart';
 import 'booking_detail_screen.dart';
+import 'booking_history_screen.dart';
 import 'customer_profile_screen.dart';
 import '../../shared/screens/notifications_screen.dart';
 import 'chatbot_screen.dart';
 
-class CustomerHomeScreen extends ConsumerWidget {
+class CustomerHomeScreen extends ConsumerStatefulWidget {
   const CustomerHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CustomerHomeScreen> createState() => _CustomerHomeScreenState();
+}
+
+class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // All available services
+  final List<Map<String, dynamic>> _allServices = [
+    {
+      'icon': Icons.plumbing_rounded,
+      'title': 'plumbing',
+      'description': 'Pipes & Repairs',
+      'color': AppTheme.plumbingColor,
+      'imagePath': 'assets/images/plumbing_icon.png',
+    },
+    {
+      'icon': Icons.electrical_services_rounded,
+      'title': 'electrical',
+      'description': 'Wiring & Fixtures',
+      'color': AppTheme.electricalColor,
+      'imagePath': 'assets/images/electrical_icon.png',
+    },
+    {
+      'icon': Icons.carpenter_rounded,
+      'title': 'carpentry',
+      'description': 'Furniture & Wood',
+      'color': AppTheme.carpentryColor,
+      'imagePath': 'assets/images/carpentry_icon.png',
+    },
+    {
+      'icon': Icons.format_paint_rounded,
+      'title': 'painting',
+      'description': 'Interior & Exterior',
+      'color': AppTheme.paintingColor,
+      'imagePath': 'assets/images/painting_icon.png',
+    },
+    {
+      'icon': Icons.ac_unit_rounded,
+      'title': 'appliance',
+      'description': 'Cooling Solutions',
+      'color': AppTheme.acColor,
+      'imagePath': 'assets/images/ac_icon.png',
+    },
+    {
+      'icon': Icons.cleaning_services_rounded,
+      'title': 'cleaning',
+      'description': 'Home & Office',
+      'color': AppTheme.cleaningColor,
+      'imagePath': null,
+    },
+  ];
+
+  List<Map<String, dynamic>> get _filteredServices {
+    if (_searchQuery.isEmpty) {
+      return _allServices;
+    }
+    return _allServices.where((service) {
+      final title = AppConstants.getCategoryDisplayName(
+        service['title'] as String,
+      ).toLowerCase();
+      final description = (service['description'] as String).toLowerCase();
+      final query = _searchQuery.toLowerCase();
+      return title.contains(query) || description.contains(query);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserProvider);
 
     return Scaffold(
@@ -45,7 +120,7 @@ class CustomerHomeScreen extends ConsumerWidget {
             // User not found - navigate to login
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                MaterialPageRoute(builder: (_) => const GoogleSignInScreen()),
                 (route) => false,
               );
             });
@@ -62,7 +137,7 @@ class CustomerHomeScreen extends ConsumerWidget {
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                _buildAppBar(context, ref, user.name),
+                _buildAppBar(context, user.name),
                 SliverToBoxAdapter(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +146,7 @@ class CustomerHomeScreen extends ConsumerWidget {
                       const SizedBox(height: 32),
                       _buildServicesSection(context),
                       const SizedBox(height: 32),
-                      _buildRecentBookings(context, ref, user.id),
+                      _buildRecentBookings(context, user.id),
                       const SizedBox(height: 32),
                     ],
                   ),
@@ -86,7 +161,7 @@ class CustomerHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, WidgetRef ref, String userName) {
+  Widget _buildAppBar(BuildContext context, String userName) {
     final unreadCountAsync = ref.watch(unreadNotificationCountProvider);
 
     return SliverAppBar(
@@ -325,35 +400,69 @@ class CustomerHomeScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1,
+                // Functional Search Bar
+                TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  cursorColor: Colors.white,
+                  decoration: InputDecoration(
+                    hintText: 'Search for services...',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 14,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.search_rounded,
-                        color: Colors.white.withOpacity(0.9),
-                        size: 20,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      size: 20,
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear_rounded,
+                              color: Colors.white.withValues(alpha: 0.9),
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _searchController.clear();
+                                _searchQuery = '';
+                              });
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 1,
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Search for services...',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 14,
-                        ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 1,
                       ),
-                    ],
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        width: 2,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.2),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ],
@@ -365,85 +474,101 @@ class CustomerHomeScreen extends ConsumerWidget {
   }
 
   Widget _buildServicesSection(BuildContext context) {
+    final filteredServices = _filteredServices;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.home_repair_service_rounded,
                 color: AppTheme.primaryColor,
                 size: 24,
               ),
-              SizedBox(width: 8),
-              Text('Our Services', style: AppTheme.h3),
+              const SizedBox(width: 8),
+              const Text('Our Services', style: AppTheme.h3),
+              if (_searchQuery.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '(${filteredServices.length})',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondaryColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
         const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 0.95,
-            children: [
-              _buildEnhancedServiceCard(
-                context,
-                icon: Icons.plumbing_rounded,
-                title: 'plumbing',
-                description: 'Pipes & Repairs',
-                color: AppTheme.plumbingColor,
-                imagePath: 'assets/images/plumbing_icon.png',
+        if (filteredServices.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                border: Border.all(color: AppTheme.dividerColor),
               ),
-              _buildEnhancedServiceCard(
-                context,
-                icon: Icons.electrical_services_rounded,
-                title: 'electrical',
-                description: 'Wiring & Fixtures',
-                color: AppTheme.electricalColor,
-                imagePath: 'assets/images/electrical_icon.png',
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.search_off_rounded,
+                    size: 48,
+                    color: AppTheme.textSecondaryColor.withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No services found',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textSecondaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Try searching with different keywords',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textSecondaryColor.withOpacity(0.7),
+                    ),
+                  ),
+                ],
               ),
-              _buildEnhancedServiceCard(
-                context,
-                icon: Icons.carpenter_rounded,
-                title: 'carpentry',
-                description: 'Furniture & Wood',
-                color: AppTheme.carpentryColor,
-                imagePath: 'assets/images/carpentry_icon.png',
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.95,
               ),
-              _buildEnhancedServiceCard(
-                context,
-                icon: Icons.format_paint_rounded,
-                title: 'painting',
-                description: 'Interior & Exterior',
-                color: AppTheme.paintingColor,
-                imagePath: 'assets/images/painting_icon.png',
-              ),
-              _buildEnhancedServiceCard(
-                context,
-                icon: Icons.ac_unit_rounded,
-                title: 'appliance',
-                description: 'Cooling Solutions',
-                color: AppTheme.acColor,
-                imagePath: 'assets/images/ac_icon.png',
-              ),
-              _buildEnhancedServiceCard(
-                context,
-                icon: Icons.cleaning_services_rounded,
-                title: 'cleaning',
-                description: 'Home & Office',
-                color: AppTheme.cleaningColor,
-                imagePath: null,
-              ),
-            ],
+              itemCount: filteredServices.length,
+              itemBuilder: (context, index) {
+                final service = filteredServices[index];
+                return _buildEnhancedServiceCard(
+                  context,
+                  icon: service['icon'] as IconData,
+                  title: service['title'] as String,
+                  description: service['description'] as String,
+                  color: service['color'] as Color,
+                  imagePath: service['imagePath'] as String?,
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }
@@ -586,11 +711,7 @@ class CustomerHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentBookings(
-    BuildContext context,
-    WidgetRef ref,
-    String userId,
-  ) {
+  Widget _buildRecentBookings(BuildContext context, String userId) {
     final bookingsAsync = ref.watch(userBookingsProvider(userId));
 
     return Column(
@@ -614,7 +735,12 @@ class CustomerHomeScreen extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Navigate to all bookings
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BookingHistoryScreen(),
+                    ),
+                  );
                 },
                 child: const Text('View All'),
               ),
