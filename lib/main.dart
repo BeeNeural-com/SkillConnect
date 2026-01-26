@@ -5,11 +5,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/theme/app_theme.dart';
 import 'core/config/firebase_config.dart';
 import 'core/widgets/custom_loading_indicator.dart';
-import 'features/auth/screens/login_screen.dart';
+import 'features/auth/screens/google_signin_screen.dart';
+import 'features/auth/screens/complete_profile_screen.dart';
 import 'features/customer/screens/customer_home_screen.dart';
 import 'features/vendor/screens/vendor_home_screen.dart';
-import 'features/onboarding/screens/customer_onboarding_screen.dart';
-import 'features/onboarding/screens/vendor_onboarding_screen.dart';
+import 'features/onboarding/screens/app_onboarding_screen.dart';
 import 'providers/auth_provider.dart';
 import 'core/constants/app_constants.dart';
 import 'services/notification_service.dart';
@@ -81,34 +81,87 @@ class AuthWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
-
-    return authState.when(
-      data: (user) {
-        if (user == null) {
-          // Not logged in - show login screen
-          return const LoginScreen();
+    // Check if app onboarding is completed
+    return FutureBuilder<bool>(
+      future: OnboardingService().isAppOnboardingCompleted(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: LoadingOverlay(message: 'Loading...'));
         }
 
-        // Logged in - determine role and route
+        final onboardingCompleted = snapshot.data ?? false;
+
+        // If onboarding not completed, show onboarding screen
+        if (!onboardingCompleted) {
+          return const AppOnboardingScreen();
+        }
+
+        // Onboarding completed, check auth state
+        final authState = ref.watch(authStateProvider);
+
+        return authState.when(
+          data: (user) {
+            if (user == null) {
+              // Not logged in - show Google sign-in screen
+              return const GoogleSignInScreen();
+            }
+
+            // Logged in - check if profile is complete
+            return const ProfileCheckWrapper();
+          },
+          loading: () =>
+              const Scaffold(body: LoadingOverlay(message: 'Initializing...')),
+          error: (error, stack) => Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text('Authentication Error'),
+                  const SizedBox(height: 8),
+                  Text(error.toString(), textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ProfileCheckWrapper extends ConsumerWidget {
+  const ProfileCheckWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authService = ref.read(authServiceProvider);
+    final userId = authService.currentUserId;
+
+    if (userId == null) {
+      return const GoogleSignInScreen();
+    }
+
+    return FutureBuilder<bool>(
+      future: authService.isProfileComplete(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: LoadingOverlay(message: 'Loading profile...'),
+          );
+        }
+
+        final isComplete = snapshot.data ?? false;
+
+        if (!isComplete) {
+          // Profile not complete - show profile completion screen
+          return const CompleteProfileScreen();
+        }
+
+        // Profile complete - show role-based home
         return const RoleBasedHome();
       },
-      loading: () =>
-          const Scaffold(body: LoadingOverlay(message: 'Initializing...')),
-      error: (error, stack) => Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text('Authentication Error'),
-              const SizedBox(height: 8),
-              Text(error.toString(), textAlign: TextAlign.center),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -123,45 +176,15 @@ class RoleBasedHome extends ConsumerWidget {
     return userDataAsync.when(
       data: (userData) {
         if (userData == null) {
-          return const LoginScreen();
+          return const GoogleSignInScreen();
         }
 
         final role = userData.role.toLowerCase().trim();
 
         if (role == AppConstants.roleCustomer) {
-          return FutureBuilder<bool>(
-            future: OnboardingService().isCustomerOnboardingCompleted(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: LoadingOverlay(message: 'Loading...'),
-                );
-              }
-
-              final completed = snapshot.data ?? false;
-              if (!completed) {
-                return const CustomerOnboardingScreen();
-              }
-              return const CustomerHomeScreen();
-            },
-          );
+          return const CustomerHomeScreen();
         } else if (role == AppConstants.roleVendor) {
-          return FutureBuilder<bool>(
-            future: OnboardingService().isVendorOnboardingCompleted(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: LoadingOverlay(message: 'Loading...'),
-                );
-              }
-
-              final completed = snapshot.data ?? false;
-              if (!completed) {
-                return const VendorOnboardingScreen();
-              }
-              return const VendorHomeScreen();
-            },
-          );
+          return const VendorHomeScreen();
         } else {
           return Scaffold(
             body: Center(
