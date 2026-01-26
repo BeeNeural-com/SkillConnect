@@ -51,6 +51,49 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
       final user = ref.read(authServiceProvider).currentUser;
       if (user == null) return;
 
+      // Check for duplicate pending bookings
+      final existingBookings = await FirebaseFirestore.instance
+          .collection(AppConstants.bookingsCollection)
+          .where('customerId', isEqualTo: user.uid)
+          .where('technicianId', isEqualTo: technicianId)
+          .where('serviceCategory', isEqualTo: widget.serviceCategory)
+          .where(
+            'status',
+            whereIn: [
+              AppConstants.statusPending,
+              AppConstants.statusAccepted,
+              AppConstants.statusInProgress,
+            ],
+          )
+          .get();
+
+      if (existingBookings.docs.isNotEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.warning_rounded, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'You already have an active booking with this technician for this service',
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: AppTheme.warningColor,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+        return;
+      }
+
       final booking = BookingModel(
         id: '',
         customerId: user.uid,
@@ -115,6 +158,33 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
           ),
         );
       }
+    }
+  }
+
+  Future<bool> _hasActiveBooking(String technicianId) async {
+    try {
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return false;
+
+      final existingBookings = await FirebaseFirestore.instance
+          .collection(AppConstants.bookingsCollection)
+          .where('customerId', isEqualTo: user.uid)
+          .where('technicianId', isEqualTo: technicianId)
+          .where('serviceCategory', isEqualTo: widget.serviceCategory)
+          .where(
+            'status',
+            whereIn: [
+              AppConstants.statusPending,
+              AppConstants.statusAccepted,
+              AppConstants.statusInProgress,
+            ],
+          )
+          .limit(1)
+          .get();
+
+      return existingBookings.docs.isNotEmpty;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -553,214 +623,287 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
     final rating = (data['rating'] ?? 0.0).toDouble();
     final totalReviews = data['totalReviews'] ?? 0;
     final isAvailable = data['isAvailable'] ?? false;
+    final techData = tech.data() as Map<String, dynamic>;
+    final userId = techData['userId'] as String;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        boxShadow: AppTheme.shadowMd,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return FutureBuilder<bool>(
+      future: _hasActiveBooking(userId),
+      builder: (context, snapshot) {
+        final hasActiveBooking = snapshot.data ?? false;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+            boxShadow: AppTheme.shadowMd,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    shape: BoxShape.circle,
-                  ),
-                  child: CircleAvatar(
-                    radius: 32,
-                    backgroundColor: Colors.white,
-                    child: const Icon(
-                      Icons.person_rounded,
-                      color: AppTheme.primaryColor,
-                      size: 32,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: CircleAvatar(
+                        radius: 32,
+                        backgroundColor: Colors.white,
+                        child: const Icon(
+                          Icons.person_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 32,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.warningColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      size: 16,
+                                      color: AppTheme.warningColor,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      rating.toStringAsFixed(1),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppTheme.warningColor,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '($totalReviews reviews)',
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondaryColor,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
+                              horizontal: 8,
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.warningColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
+                              color: isAvailable
+                                  ? AppTheme.successColor.withOpacity(0.1)
+                                  : AppTheme.errorColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  size: 16,
-                                  color: AppTheme.warningColor,
+                                Icon(
+                                  isAvailable
+                                      ? Icons.check_circle_rounded
+                                      : Icons.cancel_rounded,
+                                  size: 14,
+                                  color: isAvailable
+                                      ? AppTheme.successColor
+                                      : AppTheme.errorColor,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  rating.toStringAsFixed(1),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.warningColor,
-                                    fontSize: 14,
+                                  isAvailable ? 'Available' : 'Busy',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isAvailable
+                                        ? AppTheme.successColor
+                                        : AppTheme.errorColor,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '($totalReviews reviews)',
-                            style: const TextStyle(
-                              color: AppTheme.textSecondaryColor,
-                              fontSize: 13,
-                            ),
-                          ),
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isAvailable
-                              ? AppTheme.successColor.withOpacity(0.1)
-                              : AppTheme.errorColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isAvailable
-                                  ? Icons.check_circle_rounded
-                                  : Icons.cancel_rounded,
-                              size: 14,
-                              color: isAvailable
-                                  ? AppTheme.successColor
-                                  : AppTheme.errorColor,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              isAvailable ? 'Available' : 'Busy',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isAvailable
-                                    ? AppTheme.successColor
-                                    : AppTheme.errorColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              data['description'] ?? 'Experienced technician',
-              style: const TextStyle(
-                color: AppTheme.textSecondaryColor,
-                fontSize: 14,
-                height: 1.5,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(
-                  Icons.work_rounded,
-                  size: 16,
-                  color: AppTheme.primaryColor,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'Experience: ${data['experience'] ?? 'N/A'}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      final technician = TechnicianModel.fromFirestore(tech);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              TechnicianProfileScreen(technician: technician),
-                        ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: BorderSide(color: AppTheme.primaryColor),
                     ),
-                    icon: const Icon(Icons.person_rounded, size: 18),
-                    label: const Text('View Profile'),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
+                if (hasActiveBooking) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.primaryColor.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.info_rounded,
+                          size: 16,
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Active booking exists',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Get the userId from the technician data
-                        final techData = tech.data() as Map<String, dynamic>;
-                        final userId = techData['userId'] as String;
-                        _createBooking(context, ref, userId);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      icon: const Icon(Icons.send_rounded, size: 18),
-                      label: const Text('Request'),
-                    ),
                   ),
+                ],
+                const SizedBox(height: 16),
+                Text(
+                  data['description'] ?? 'Experienced technician',
+                  style: const TextStyle(
+                    color: AppTheme.textSecondaryColor,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.work_rounded,
+                      size: 16,
+                      color: AppTheme.primaryColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Experience: ${data['experience'] ?? 'N/A'}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          final technician = TechnicianModel.fromFirestore(
+                            tech,
+                          );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TechnicianProfileScreen(
+                                technician: technician,
+                              ),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: AppTheme.primaryColor),
+                        ),
+                        icon: const Icon(Icons.person_rounded, size: 18),
+                        label: const Text('View Profile'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: hasActiveBooking
+                          ? Container(
+                              decoration: BoxDecoration(
+                                color: AppTheme.dividerColor,
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusMd,
+                                ),
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  disabledBackgroundColor: Colors.transparent,
+                                ),
+                                icon: const Icon(Icons.block_rounded, size: 18),
+                                label: const Text('Booked'),
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.primaryGradient,
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusMd,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.primaryColor.withOpacity(
+                                      0.4,
+                                    ),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  _createBooking(context, ref, userId);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                                icon: const Icon(Icons.send_rounded, size: 18),
+                                label: const Text('Request'),
+                              ),
+                            ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
