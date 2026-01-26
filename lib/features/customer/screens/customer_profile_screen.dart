@@ -4,7 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../services/onboarding_service.dart';
 import '../../shared/widgets/loading_widget.dart';
-import '../../auth/screens/login_screen.dart';
+import '../../auth/screens/google_signin_screen.dart';
 import '../../shared/screens/terms_of_service_screen.dart';
 import '../../shared/screens/privacy_policy_screen.dart';
 import 'booking_history_screen.dart';
@@ -307,7 +307,9 @@ class CustomerProfileScreen extends ConsumerWidget {
                 // Navigate to login screen
                 if (context.mounted) {
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const GoogleSignInScreen(),
+                    ),
                     (route) => false,
                   );
                 }
