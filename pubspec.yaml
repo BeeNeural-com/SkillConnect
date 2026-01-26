@@ -47,6 +47,7 @@ dependencies:
   firebase_auth: ^6.1.2
   cloud_firestore: ^6.1.0
   firebase_storage: ^13.0.4
+  google_sign_in: ^6.2.2
   
   # Maps & Location
   google_maps_flutter: ^2.14.0
@@ -78,6 +79,9 @@ dependencies:
   # Push Notifications
   firebase_messaging: ^16.0.4
   flutter_local_notifications: ^18.0.1
+  
+  # Deep Linking for Email Link Auth
+  app_links: ^6.3.4
 
 dev_dependencies:
   flutter_test:
