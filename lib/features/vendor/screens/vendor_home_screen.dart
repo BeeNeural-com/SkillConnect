@@ -7,7 +7,7 @@ import '../../../providers/booking_provider.dart';
 import '../../../providers/notification_provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../shared/widgets/loading_widget.dart';
-import '../../auth/screens/login_screen.dart';
+import '../../auth/screens/google_signin_screen.dart';
 import 'vendor_registration_screen.dart';
 import 'booking_requests_screen.dart';
 import 'active_jobs_screen.dart';
@@ -29,7 +29,7 @@ class VendorHomeScreen extends ConsumerWidget {
             // User not found - navigate to login
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                MaterialPageRoute(builder: (_) => const GoogleSignInScreen()),
                 (route) => false,
               );
             });

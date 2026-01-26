@@ -8,7 +8,7 @@ import '../../../providers/technician_provider.dart';
 import '../../../models/review_model.dart';
 import '../../../services/onboarding_service.dart';
 import '../../shared/widgets/loading_widget.dart';
-import '../../auth/screens/login_screen.dart';
+import '../../auth/screens/google_signin_screen.dart';
 import '../../shared/screens/terms_of_service_screen.dart';
 import '../../shared/screens/privacy_policy_screen.dart';
 import '../../../utils/recalculate_ratings_helper.dart';
@@ -638,7 +638,7 @@ class _VendorProfileViewScreenState
               // Navigate to login screen
               if (context.mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  MaterialPageRoute(builder: (_) => const GoogleSignInScreen()),
                   (route) => false,
                 );
               }
