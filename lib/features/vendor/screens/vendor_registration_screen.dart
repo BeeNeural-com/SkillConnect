@@ -11,14 +11,18 @@ class VendorRegistrationScreen extends ConsumerStatefulWidget {
   const VendorRegistrationScreen({super.key});
 
   @override
-  ConsumerState<VendorRegistrationScreen> createState() => _VendorRegistrationScreenState();
+  ConsumerState<VendorRegistrationScreen> createState() =>
+      _VendorRegistrationScreenState();
 }
 
-class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScreen> {
+class _VendorRegistrationScreenState
+    extends ConsumerState<VendorRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _phoneController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _experienceController = TextEditingController();
-  
+
+  String _selectedRole = AppConstants.roleCustomer;
   final List<String> _selectedSkills = [];
   bool _isAvailable = true;
 
@@ -44,7 +48,9 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
           ),
           backgroundColor: AppTheme.warningColor,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -87,7 +93,9 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
             ),
             backgroundColor: AppTheme.successColor,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
         Navigator.pop(context);
@@ -95,9 +103,9 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
     } catch (e) {
       ref.read(technicianErrorProvider.notifier).state = e.toString();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       ref.read(technicianLoadingProvider.notifier).state = false;
@@ -235,16 +243,9 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
       children: [
         const Row(
           children: [
-            Icon(
-              Icons.build_rounded,
-              color: AppTheme.secondaryColor,
-              size: 24,
-            ),
+            Icon(Icons.build_rounded, color: AppTheme.secondaryColor, size: 24),
             SizedBox(width: 8),
-            Text(
-              'Select Your Skills',
-              style: AppTheme.h3,
-            ),
+            Text('Select Your Skills', style: AppTheme.h3),
           ],
         ),
         const SizedBox(height: 16),
@@ -264,7 +265,10 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppTheme.secondaryGradient : null,
                   color: isSelected ? null : Colors.white,
@@ -288,17 +292,16 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      category.icon,
-                      style: const TextStyle(fontSize: 18),
-                    ),
+                    Text(category.icon, style: const TextStyle(fontSize: 18)),
                     const SizedBox(width: 8),
                     Text(
                       category.name,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
+                        color: isSelected
+                            ? Colors.white
+                            : AppTheme.textPrimaryColor,
                       ),
                     ),
                     if (isSelected) ...[
@@ -331,10 +334,7 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
               size: 24,
             ),
             SizedBox(width: 8),
-            Text(
-              'About You',
-              style: AppTheme.h3,
-            ),
+            Text('About You', style: AppTheme.h3),
           ],
         ),
         const SizedBox(height: 16),
@@ -376,16 +376,9 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
       children: [
         const Row(
           children: [
-            Icon(
-              Icons.work_rounded,
-              color: AppTheme.secondaryColor,
-              size: 24,
-            ),
+            Icon(Icons.work_rounded, color: AppTheme.secondaryColor, size: 24),
             SizedBox(width: 8),
-            Text(
-              'Experience',
-              style: AppTheme.h3,
-            ),
+            Text('Experience', style: AppTheme.h3),
           ],
         ),
         const SizedBox(height: 16),
@@ -401,7 +394,10 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
               hintText: 'e.g., 5 years',
               prefixIcon: const Padding(
                 padding: EdgeInsets.all(12.0),
-                child: Icon(Icons.calendar_today_rounded, color: AppTheme.secondaryColor),
+                child: Icon(
+                  Icons.calendar_today_rounded,
+                  color: AppTheme.secondaryColor,
+                ),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusLg),
@@ -522,7 +518,11 @@ class _VendorRegistrationScreenState extends ConsumerState<VendorRegistrationScr
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : const Icon(Icons.check_circle_rounded, color: Colors.white, size: 24),
+            : const Icon(
+                Icons.check_circle_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
         label: Text(
           isLoading ? 'Creating Profile...' : 'Create Profile',
           style: const TextStyle(
