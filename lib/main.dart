@@ -7,6 +7,7 @@ import 'core/config/firebase_config.dart';
 import 'core/widgets/custom_loading_indicator.dart';
 import 'features/auth/screens/google_signin_screen.dart';
 import 'features/auth/screens/complete_profile_screen.dart';
+import 'features/auth/screens/role_selection_screen.dart';
 import 'features/customer/screens/customer_home_screen.dart';
 import 'features/vendor/screens/vendor_home_screen.dart';
 import 'features/onboarding/screens/app_onboarding_screen.dart';
@@ -155,8 +156,8 @@ class ProfileCheckWrapper extends ConsumerWidget {
         final isComplete = snapshot.data ?? false;
 
         if (!isComplete) {
-          // Profile not complete - show profile completion screen
-          return const CompleteProfileScreen();
+          // Profile not complete - show role selection screen
+          return const RoleSelectionWrapper();
         }
 
         // Profile complete - show role-based home
@@ -266,5 +267,41 @@ class RoleBasedHome extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+class RoleSelectionWrapper extends StatelessWidget {
+  const RoleSelectionWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: _showRoleSelection(context),
+      builder: (context, snapshot) {
+        // This will never actually show because we navigate immediately
+        return const Scaffold(body: LoadingOverlay(message: 'Loading...'));
+      },
+    );
+  }
+
+  Future<String?> _showRoleSelection(BuildContext context) async {
+    // Wait for the next frame to ensure context is ready
+    await Future.delayed(Duration.zero);
+
+    if (!context.mounted) return null;
+
+    // Show role selection screen and wait for result
+    final role = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+    );
+
+    if (role != null && context.mounted) {
+      // Navigate to complete profile screen with selected role
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => CompleteProfileScreen(role: role)),
+      );
+    }
+
+    return role;
   }
 }
