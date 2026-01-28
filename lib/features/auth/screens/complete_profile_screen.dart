@@ -6,7 +6,9 @@ import '../../../core/constants/app_constants.dart';
 import '../../../main.dart';
 
 class CompleteProfileScreen extends ConsumerStatefulWidget {
-  const CompleteProfileScreen({super.key});
+  final String role;
+
+  const CompleteProfileScreen({super.key, required this.role});
 
   @override
   ConsumerState<CompleteProfileScreen> createState() =>
@@ -19,23 +21,8 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   final _experienceController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  String _selectedRole = AppConstants.roleCustomer;
   final List<String> _selectedSkills = [];
   bool _isLoading = false;
-  String? _error;
-
-  final List<String> _availableSkills = [
-    'Plumbing',
-    'Electrical',
-    'Carpentry',
-    'Painting',
-    'AC Repair',
-    'Cleaning',
-    'Welding',
-    'Masonry',
-    'Roofing',
-    'Flooring',
-  ];
 
   @override
   void dispose() {
@@ -48,16 +35,29 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   Future<void> _completeProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_selectedRole == AppConstants.roleVendor && _selectedSkills.isEmpty) {
-      setState(() {
-        _error = 'Please select at least one skill';
-      });
+    // Validate skills for technicians
+    if (widget.role == AppConstants.roleVendor && _selectedSkills.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.warning_rounded, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Please select at least one skill'),
+            ],
+          ),
+          backgroundColor: AppTheme.warningColor,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _error = null;
     });
 
     try {
@@ -71,14 +71,12 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
       await authService.completeProfile(
         userId: userId,
         phone: _phoneController.text.trim(),
-        role: _selectedRole,
-        experience: _selectedRole == AppConstants.roleVendor
+        role: widget.role,
+        experience: widget.role == AppConstants.roleVendor
             ? _experienceController.text.trim()
             : null,
-        skills: _selectedRole == AppConstants.roleVendor
-            ? _selectedSkills
-            : null,
-        description: _selectedRole == AppConstants.roleVendor
+        skills: widget.role == AppConstants.roleVendor ? _selectedSkills : null,
+        description: widget.role == AppConstants.roleVendor
             ? _descriptionController.text.trim()
             : null,
       );
@@ -91,10 +89,30 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
         );
       }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Error: $e')),
+              ],
+            ),
+            backgroundColor: AppTheme.errorColor,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -102,421 +120,393 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 20),
-
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.person_add_rounded,
-                            size: 48,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Complete Your Profile',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Tell us a bit more about yourself',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Role Selection
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                      boxShadow: AppTheme.shadowSm,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'I am a:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimaryColor,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildRoleOption(
-                                AppConstants.roleCustomer,
-                                'Customer',
-                                Icons.person_rounded,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _buildRoleOption(
-                                AppConstants.roleVendor,
-                                'Technician',
-                                Icons.build_rounded,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Phone Field
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                      boxShadow: AppTheme.shadowSm,
-                    ),
-                    child: TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        hintText: 'Enter your phone',
-                        prefixIcon: Container(
-                          margin: const EdgeInsets.all(12),
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: AppTheme.primaryGradient,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.phone_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusLg,
-                          ),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your phone number';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-
-                  // Vendor-specific fields
-                  if (_selectedRole == AppConstants.roleVendor) ...[
-                    const SizedBox(height: 20),
-
-                    // Experience Field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                        boxShadow: AppTheme.shadowSm,
-                      ),
-                      child: TextFormField(
-                        controller: _experienceController,
-                        decoration: InputDecoration(
-                          labelText: 'Experience',
-                          hintText: 'e.g., 5 years',
-                          prefixIcon: Container(
-                            margin: const EdgeInsets.all(12),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: AppTheme.secondaryGradient,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.work_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusLg,
-                            ),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your experience';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Skills Selection
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                        boxShadow: AppTheme.shadowSm,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Skills',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimaryColor,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: _availableSkills.map((skill) {
-                              final isSelected = _selectedSkills.contains(
-                                skill,
-                              );
-                              return FilterChip(
-                                label: Text(skill),
-                                selected: isSelected,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    if (selected) {
-                                      _selectedSkills.add(skill);
-                                    } else {
-                                      _selectedSkills.remove(skill);
-                                    }
-                                  });
-                                },
-                                selectedColor: AppTheme.primaryColor,
-                                checkmarkColor: Colors.white,
-                                labelStyle: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : AppTheme.textPrimaryColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Description Field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                        boxShadow: AppTheme.shadowSm,
-                      ),
-                      child: TextFormField(
-                        controller: _descriptionController,
-                        maxLines: 4,
-                        decoration: InputDecoration(
-                          labelText: 'About You',
-                          hintText: 'Tell customers about your expertise...',
-                          alignLabelWithHint: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusLg,
-                            ),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please describe yourself';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 32),
+                    _buildPhoneSection(),
+                    if (widget.role == AppConstants.roleVendor) ...[
+                      const SizedBox(height: 32),
+                      _buildSkillsSection(),
+                      const SizedBox(height: 32),
+                      _buildDescriptionSection(),
+                      const SizedBox(height: 24),
+                      _buildExperienceSection(),
+                    ],
+                    const SizedBox(height: 32),
+                    _buildSubmitButton(),
+                    const SizedBox(height: 32),
                   ],
-
-                  const SizedBox(height: 24),
-
-                  // Error Message
-                  if (_error != null)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: AppTheme.errorColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                        border: Border.all(
-                          color: AppTheme.errorColor.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.error_outline_rounded,
-                            color: AppTheme.errorColor,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _error!,
-                              style: const TextStyle(
-                                color: AppTheme.errorColor,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Complete Button
-                  Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _completeProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusLg,
-                          ),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : const Text(
-                              'Complete Profile',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      expandedHeight: 0,
+      floating: true,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      automaticallyImplyLeading: false,
+      title: const Text(
+        'Complete Your Profile',
+        style: TextStyle(
+          color: AppTheme.textPrimaryColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
         ),
       ),
     );
   }
 
-  Widget _buildRoleOption(String role, String label, IconData icon) {
-    final isSelected = _selectedRole == role;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedRole = role),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : AppTheme.backgroundColor,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          border: Border.all(
-            color: isSelected ? Colors.transparent : AppTheme.dividerColor,
-            width: 2,
+  Widget _buildHeader() {
+    final isVendor = widget.role == AppConstants.roleVendor;
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: AppTheme.secondaryGradient,
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.secondaryColor.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isVendor ? Icons.build_rounded : Icons.person_rounded,
+              size: 48,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            isVendor ? 'Technician Profile' : 'Customer Profile',
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isVendor
+                ? 'Tell customers about your skills and experience'
+                : 'Complete your profile to get started',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhoneSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.phone_rounded, color: AppTheme.secondaryColor, size: 24),
+            SizedBox(width: 8),
+            Text('Phone Number', style: AppTheme.h3),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            boxShadow: AppTheme.shadowSm,
+          ),
+          child: TextFormField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              hintText: 'Enter your phone number',
+              prefixIcon: const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Icon(
+                  Icons.phone_rounded,
+                  color: AppTheme.secondaryColor,
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your phone number';
+              }
+              return null;
+            },
           ),
         ),
-        child: Column(
+      ],
+    );
+  }
+
+  Widget _buildSkillsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.build_rounded, color: AppTheme.secondaryColor, size: 24),
+            SizedBox(width: 8),
+            Text('Select Your Skills', style: AppTheme.h3),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: AppConstants.serviceCategories.map((category) {
+            final isSelected = _selectedSkills.contains(category.id);
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) {
+                    _selectedSkills.remove(category.id);
+                  } else {
+                    _selectedSkills.add(category.id);
+                  }
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  gradient: isSelected ? AppTheme.secondaryGradient : null,
+                  color: isSelected ? null : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.transparent
+                        : AppTheme.dividerColor,
+                    width: 1,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppTheme.secondaryColor.withValues(
+                              alpha: 0.3,
+                            ),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : AppTheme.shadowSm,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(category.icon, style: const TextStyle(fontSize: 18)),
+                    const SizedBox(width: 8),
+                    Text(
+                      category.name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? Colors.white
+                            : AppTheme.textPrimaryColor,
+                      ),
+                    ),
+                    if (isSelected) ...[
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescriptionSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
           children: [
             Icon(
-              icon,
-              color: isSelected ? Colors.white : AppTheme.primaryColor,
-              size: 32,
+              Icons.description_rounded,
+              color: AppTheme.secondaryColor,
+              size: 24,
             ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
-              ),
-            ),
+            SizedBox(width: 8),
+            Text('About You', style: AppTheme.h3),
           ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            boxShadow: AppTheme.shadowSm,
+          ),
+          child: TextFormField(
+            controller: _descriptionController,
+            maxLines: 5,
+            maxLength: 500,
+            decoration: InputDecoration(
+              hintText: 'Tell customers about your expertise...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.all(16),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please describe your expertise';
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExperienceSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.work_rounded, color: AppTheme.secondaryColor, size: 24),
+            SizedBox(width: 8),
+            Text('Experience', style: AppTheme.h3),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            boxShadow: AppTheme.shadowSm,
+          ),
+          child: TextFormField(
+            controller: _experienceController,
+            decoration: InputDecoration(
+              hintText: 'e.g., 5 years',
+              prefixIcon: const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Icon(
+                  Icons.calendar_today_rounded,
+                  color: AppTheme.secondaryColor,
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your experience';
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: AppTheme.secondaryGradient,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.secondaryColor.withValues(alpha: 0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: _isLoading ? null : _completeProfile,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          ),
+        ),
+        icon: _isLoading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : const Icon(
+                Icons.check_circle_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+        label: Text(
+          _isLoading ? 'Completing Profile...' : 'Complete Profile',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );
