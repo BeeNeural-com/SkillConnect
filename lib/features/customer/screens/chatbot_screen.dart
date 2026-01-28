@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../providers/chatbot_provider.dart';
 import '../../../providers/auth_provider.dart';
-import 'chatbot_settings_screen.dart';
 
 class ChatbotScreen extends ConsumerStatefulWidget {
   const ChatbotScreen({super.key});
@@ -124,20 +123,6 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
               ],
             ),
             actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.settings_rounded,
-                  color: AppTheme.textPrimaryColor,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ChatbotSettingsScreen(),
-                    ),
-                  );
-                },
-              ),
               PopupMenuButton<String>(
                 icon: const Icon(
                   Icons.more_vert,
