@@ -271,6 +271,25 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
               if (value == null || value.isEmpty) {
                 return 'Please enter your phone number';
               }
+
+              // Remove all non-digit characters for validation
+              final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
+
+              // Check if it contains only digits (after removing spaces, dashes, etc.)
+              if (digitsOnly.isEmpty) {
+                return 'Phone number must contain digits';
+              }
+
+              // Check minimum length (at least 10 digits)
+              if (digitsOnly.length < 10) {
+                return 'Phone number must be at least 10 digits';
+              }
+
+              // Check maximum length (no more than 15 digits)
+              if (digitsOnly.length > 15) {
+                return 'Phone number must not exceed 15 digits';
+              }
+
               return null;
             },
           ),
