@@ -114,20 +114,31 @@ class AuthService {
         'updatedAt': Timestamp.now(),
       };
 
-      // Add vendor-specific fields if role is vendor
-      if (role == AppConstants.roleVendor) {
-        updateData['experience'] = experience ?? '';
-        updateData['skills'] = skills ?? [];
-        updateData['description'] = description ?? '';
-        updateData['isAvailable'] = true;
-        updateData['rating'] = 0.0;
-        updateData['totalReviews'] = 0;
-      }
-
+      // Update user document
       await _firestore
           .collection(AppConstants.usersCollection)
           .doc(userId)
           .update(updateData);
+
+      // If role is vendor, create technician profile
+      if (role == AppConstants.roleVendor) {
+        final technicianData = {
+          'userId': userId,
+          'experience': experience ?? '',
+          'skills': skills ?? [],
+          'description': description ?? '',
+          'isAvailable': true,
+          'rating': 0.0,
+          'totalReviews': 0,
+          'certifications': [],
+          'createdAt': Timestamp.now(),
+          'updatedAt': Timestamp.now(),
+        };
+
+        await _firestore
+            .collection(AppConstants.techniciansCollection)
+            .add(technicianData);
+      }
     } catch (e) {
       rethrow;
     }
