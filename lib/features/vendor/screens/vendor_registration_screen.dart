@@ -18,11 +18,11 @@ class VendorRegistrationScreen extends ConsumerStatefulWidget {
 class _VendorRegistrationScreenState
     extends ConsumerState<VendorRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  // final _phoneController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _experienceController = TextEditingController();
 
-  String _selectedRole = AppConstants.roleCustomer;
+  // String _selectedRole = AppConstants.roleCustomer;
   final List<String> _selectedSkills = [];
   bool _isAvailable = true;
 
