@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../services/onboarding_service.dart';
 import '../../auth/screens/google_signin_screen.dart';
@@ -115,9 +116,9 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: _finishOnboarding,
-                child: const Text(
+                child: Text(
                   'Skip',
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.primaryColor,
@@ -166,10 +167,11 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                   ),
                   child: Text(
                     _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
-                    style: const TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ),
@@ -212,10 +214,11 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
           // Title
           Text(
             page.title,
-            style: const TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 28,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               color: AppTheme.textPrimaryColor,
+              letterSpacing: -0.5,
             ),
             textAlign: TextAlign.center,
           ),
@@ -225,10 +228,11 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
           // Description
           Text(
             page.description,
-            style: const TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 16,
               color: AppTheme.textSecondaryColor,
-              height: 1.5,
+              height: 1.6,
+              fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
           ),
