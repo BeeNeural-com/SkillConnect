@@ -9,7 +9,7 @@ import 'features/auth/screens/google_signin_screen.dart';
 import 'features/auth/screens/complete_profile_screen.dart';
 import 'features/auth/screens/role_selection_screen.dart';
 import 'features/customer/screens/customer_home_screen.dart';
-import 'features/vendor/screens/vendor_home_screen.dart';
+import 'features/vendor/presentation/pages/vendor_shell_screen.dart';
 import 'features/onboarding/screens/app_onboarding_screen.dart';
 import 'providers/auth_provider.dart';
 import 'core/constants/app_constants.dart';
@@ -185,7 +185,7 @@ class RoleBasedHome extends ConsumerWidget {
         if (role == AppConstants.roleCustomer) {
           return const CustomerHomeScreen();
         } else if (role == AppConstants.roleVendor) {
-          return const VendorHomeScreen();
+          return const VendorShellScreen();
         } else {
           return Scaffold(
             body: Center(
