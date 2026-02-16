@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../services/onboarding_service.dart';
-import '../../vendor/screens/vendor_home_screen.dart';
+import '../../vendor/presentation/pages/vendor_shell_screen.dart';
 
 class VendorOnboardingScreen extends StatefulWidget {
   const VendorOnboardingScreen({super.key});
@@ -89,7 +89,7 @@ class _VendorOnboardingScreenState extends State<VendorOnboardingScreen> {
     await _onboardingService.completeVendorOnboarding();
     if (mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const VendorHomeScreen()),
+        MaterialPageRoute(builder: (_) => const VendorShellScreen()),
       );
     }
   }

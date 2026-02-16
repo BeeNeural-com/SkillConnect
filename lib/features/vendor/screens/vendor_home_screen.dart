@@ -11,7 +11,6 @@ import '../../auth/screens/google_signin_screen.dart';
 import 'vendor_registration_screen.dart';
 import 'booking_requests_screen.dart';
 import 'active_jobs_screen.dart';
-import 'vendor_profile_view_screen.dart';
 import '../../shared/screens/notifications_screen.dart';
 
 class VendorHomeScreen extends ConsumerWidget {
@@ -368,30 +367,6 @@ class VendorHomeScreen extends ConsumerWidget {
               );
             },
           ),
-        ),
-        const SizedBox(width: 8),
-        // Profile Icon
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppTheme.secondaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.person_rounded,
-              color: AppTheme.secondaryColor,
-              size: 20,
-            ),
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const VendorProfileViewScreen(),
-              ),
-            );
-          },
         ),
         const SizedBox(width: 12),
       ],
