@@ -31,7 +31,7 @@ final currentUserProvider = StreamProvider<UserModel?>((ref) {
       return authService.getUserDataStream(user.uid);
     },
     loading: () => Stream.value(null),
-    error: (_, __) => Stream.value(null),
+    error: (_, _) => Stream.value(null),
   );
 });
 

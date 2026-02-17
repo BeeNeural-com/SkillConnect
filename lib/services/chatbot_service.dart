@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -152,7 +153,7 @@ IMPORTANT GUIDELINES:
 
       await batch.commit();
     } catch (e) {
-      print('Error saving chat history: $e');
+      debugPrint('Error saving chat history: $e');
     }
   }
 
@@ -170,7 +171,7 @@ IMPORTANT GUIDELINES:
           .map((doc) => ChatMessageModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
-      print('Error loading chat history: $e');
+      debugPrint('Error loading chat history: $e');
       return [];
     }
   }
@@ -218,7 +219,7 @@ Please provide a helpful, friendly response based on the Skill Connect services 
         return _getFallbackResponse(userMessage);
       }
     } catch (e) {
-      print('Error getting AI response: $e');
+      debugPrint('Error getting AI response: $e');
       return _getFallbackResponse(userMessage);
     }
   }

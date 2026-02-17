@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:uuid/uuid.dart';
@@ -47,7 +48,7 @@ Future<void> initializeChat(WidgetRef ref, String userId) async {
       ref.read(chatMessagesProvider(userId).notifier).state = history;
     }
   } catch (e) {
-    print('Error loading chat history: $e');
+    debugPrint('Error loading chat history: $e');
   } finally {
     ref.read(chatLoadingProvider(userId).notifier).state = false;
   }

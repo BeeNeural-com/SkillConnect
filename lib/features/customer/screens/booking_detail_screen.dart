@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -69,7 +70,7 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                 data: {'bookingId': widget.booking.id},
               );
         } catch (e) {
-          print('Error sending notification: $e');
+          debugPrint('Error sending notification: $e');
         }
 
         if (context.mounted) {
