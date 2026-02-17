@@ -184,7 +184,7 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: page.gradient.colors.first.withOpacity(0.3),
+                  color: page.gradient.colors.first.withValues(alpha: 0.3),
                   blurRadius: 30,
                   offset: const Offset(0, 15),
                 ),

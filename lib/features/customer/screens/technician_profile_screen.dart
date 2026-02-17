@@ -53,7 +53,7 @@ class TechnicianProfileScreen extends ConsumerWidget {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: AppTheme.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -84,7 +84,7 @@ class TechnicianProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.secondaryColor.withOpacity(0.3),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -99,8 +99,8 @@ class TechnicianProfileScreen extends ConsumerWidget {
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [
-                  Colors.white.withOpacity(0.8),
-                  Colors.white.withOpacity(0.4),
+                  Colors.white.withValues(alpha: 0.8),
+                  Colors.white.withValues(alpha: 0.4),
                 ],
               ),
             ),
@@ -120,7 +120,7 @@ class TechnicianProfileScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -148,7 +148,7 @@ class TechnicianProfileScreen extends ConsumerWidget {
             '${technician.totalReviews} reviews',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -159,8 +159,8 @@ class TechnicianProfileScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: technician.isAvailable
-                  ? Colors.white.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.2),
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -222,7 +222,7 @@ class TechnicianProfileScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.secondaryColor.withOpacity(0.3),
+                      color: AppTheme.secondaryColor.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -410,7 +410,7 @@ class TechnicianProfileScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -467,7 +467,7 @@ class _ReviewCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.warningColor.withOpacity(0.1),
+                  color: AppTheme.warningColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

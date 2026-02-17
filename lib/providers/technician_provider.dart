@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +17,7 @@ final technicianProfileProvider = StreamProvider.family<TechnicianModel?, String
   userId,
 ) {
   final firestore = FirebaseFirestore.instance;
-  print('🔍 technicianProfileProvider: Querying for userId: $userId');
+  debugPrint('🔍 technicianProfileProvider: Querying for userId: $userId');
   return firestore
       .collection(AppConstants.techniciansCollection)
       .where('userId', isEqualTo: userId)
@@ -24,11 +25,11 @@ final technicianProfileProvider = StreamProvider.family<TechnicianModel?, String
       .snapshots()
       .map((snapshot) {
         if (snapshot.docs.isEmpty) {
-          print('❌ No technician found for userId: $userId');
+          debugPrint('❌ No technician found for userId: $userId');
           return null;
         }
         final tech = TechnicianModel.fromFirestore(snapshot.docs.first);
-        print(
+        debugPrint(
           '✅ Technician found: docId=${snapshot.docs.first.id}, rating=${tech.rating}, totalReviews=${tech.totalReviews}',
         );
         return tech;

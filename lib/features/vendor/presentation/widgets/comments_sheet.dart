@@ -97,7 +97,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
                         CircleAvatar(
                           radius: 16,
                           backgroundColor:
-                              AppTheme.primaryColor.withOpacity(0.1),
+                              AppTheme.primaryColor.withValues(alpha: 0.1),
                           child: Text(
                             name.isNotEmpty
                                 ? name[0].toUpperCase()

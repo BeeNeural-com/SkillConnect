@@ -163,7 +163,7 @@ class _VendorRegistrationScreenState
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.secondaryColor.withOpacity(0.1),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -193,7 +193,7 @@ class _VendorRegistrationScreenState
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.secondaryColor.withOpacity(0.3),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -204,7 +204,7 @@ class _VendorRegistrationScreenState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -228,7 +228,7 @@ class _VendorRegistrationScreenState
             'Tell customers about your skills and experience',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
             ),
             textAlign: TextAlign.center,
           ),
@@ -282,7 +282,7 @@ class _VendorRegistrationScreenState
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: AppTheme.secondaryColor.withOpacity(0.3),
+                            color: AppTheme.secondaryColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -436,7 +436,7 @@ class _VendorRegistrationScreenState
                   : LinearGradient(
                       colors: [
                         AppTheme.textSecondaryColor,
-                        AppTheme.textSecondaryColor.withOpacity(0.7),
+                        AppTheme.textSecondaryColor.withValues(alpha: 0.7),
                       ],
                     ),
               borderRadius: BorderRadius.circular(12),
@@ -494,7 +494,7 @@ class _VendorRegistrationScreenState
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.secondaryColor.withOpacity(0.4),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

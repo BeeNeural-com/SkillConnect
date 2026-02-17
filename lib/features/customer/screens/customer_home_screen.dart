@@ -191,7 +191,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -240,7 +240,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -260,7 +260,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -283,7 +283,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -312,7 +312,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
+            color: AppTheme.primaryColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -331,7 +331,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
             ),
@@ -343,7 +343,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
             ),
@@ -355,7 +355,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                 height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -395,7 +395,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                     'What service do you need today?',
                     style: GoogleFonts.inter(
                       fontSize: 15,
-                      color: Colors.white.withOpacity(0.95),
+                      color: Colors.white.withValues(alpha: 0.95),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -525,7 +525,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                   Icon(
                     Icons.search_off_rounded,
                     size: 48,
-                    color: AppTheme.textSecondaryColor.withOpacity(0.5),
+                    color: AppTheme.textSecondaryColor.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -541,7 +541,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                     'Try searching with different keywords',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textSecondaryColor.withOpacity(0.7),
+                      color: AppTheme.textSecondaryColor.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -617,7 +617,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: color.withOpacity(0.08),
+                    color: color.withValues(alpha: 0.08),
                   ),
                 ),
               ),
@@ -634,7 +634,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                         height: 64,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
+                          color: color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Image.asset(
@@ -651,14 +651,14 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                         height: 64,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [color, color.withOpacity(0.7)],
+                            colors: [color, color.withValues(alpha: 0.7)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: color.withOpacity(0.3),
+                              color: color.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             ),
@@ -794,13 +794,13 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.calendar_today_rounded,
               size: 48,
-              color: AppTheme.primaryColor.withOpacity(0.6),
+              color: AppTheme.primaryColor.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 16),
@@ -879,14 +879,14 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                   height: 56,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [statusColor, statusColor.withOpacity(0.7)],
+                      colors: [statusColor, statusColor.withValues(alpha: 0.7)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: statusColor.withOpacity(0.3),
+                        color: statusColor.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -942,10 +942,10 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: statusColor.withOpacity(0.3),
+                      color: statusColor.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
