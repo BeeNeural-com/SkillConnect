@@ -83,7 +83,7 @@ class BookingHistoryScreen extends ConsumerWidget {
           ),
           child: const Icon(
             Icons.arrow_back_rounded,
-            color: AppTheme.primargityColor,
+            color: AppTheme.primaryColor,
             size: 20,
           ),
         ),
