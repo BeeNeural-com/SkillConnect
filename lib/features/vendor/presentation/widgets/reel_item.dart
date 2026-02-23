@@ -11,11 +11,7 @@ class ReelItem extends StatefulWidget {
   final ReelModel reel;
   final bool isActive;
 
-  const ReelItem({
-    super.key,
-    required this.reel,
-    required this.isActive,
-  });
+  const ReelItem({super.key, required this.reel, required this.isActive});
 
   @override
   State<ReelItem> createState() => _ReelItemState();
@@ -62,8 +58,9 @@ class _ReelItemState extends State<ReelItem> {
     }
     setState(() {
       _isLiked = !_isLiked;
-      _likeCount =
-          _isLiked ? _likeCount + 1 : (_likeCount - 1).clamp(0, 999999);
+      _likeCount = _isLiked
+          ? _likeCount + 1
+          : (_likeCount - 1).clamp(0, 999999);
     });
     await _reelService.toggleLike(
       reelId: widget.reel.id,
@@ -74,14 +71,30 @@ class _ReelItemState extends State<ReelItem> {
 
   void _shareReel(String url) {
     if (_isSharing) return;
+
+    // Generate custom share URL
+    final shortId = widget.reel.shortId ?? _extractShortId(url);
+    // Use Firebase hosting URL (change to custom domain when ready)
+    final customUrl = 'https://skill-connect-9d6b3.web.app/reels/$shortId';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => _ShareSheet(
-        url: url,
-        onDismiss: () => Navigator.of(ctx).pop(),
-      ),
+      builder: (ctx) =>
+          _ShareSheet(url: customUrl, onDismiss: () => Navigator.of(ctx).pop()),
     );
+  }
+
+  /// Extract short ID from GCS URL
+  String _extractShortId(String gcsUrl) {
+    try {
+      final uri = Uri.parse(gcsUrl);
+      final filename = uri.pathSegments.last;
+      final uuid = filename.replaceAll('.mp4', '').replaceAll('.mov', '');
+      return uuid.split('-').first;
+    } catch (e) {
+      return 'reel';
+    }
   }
 
   void _openComments() {
@@ -104,8 +117,7 @@ class _ReelItemState extends State<ReelItem> {
       children: [
         // ── Video player ──
         Positioned.fill(
-          child:
-              ReelVideoPlayer(url: reel.videoUrl, isActive: widget.isActive),
+          child: ReelVideoPlayer(url: reel.videoUrl, isActive: widget.isActive),
         ),
 
         // ── Gradient overlays ──
@@ -140,8 +152,10 @@ class _ReelItemState extends State<ReelItem> {
               children: [
                 // Username chip
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: Colors.white.withValues(alpha: 0.12),
@@ -164,8 +178,9 @@ class _ReelItemState extends State<ReelItem> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF6366F1)
-                                  .withValues(alpha: 0.4),
+                              color: const Color(
+                                0xFF6366F1,
+                              ).withValues(alpha: 0.4),
                               blurRadius: 6,
                             ),
                           ],
@@ -239,7 +254,9 @@ class _ReelItemState extends State<ReelItem> {
                 label: 'Like',
                 count: _likeCount,
                 isActive: _isLiked,
-                icon: _isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                icon: _isLiked
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
                 activeColor: const Color(0xFFED4956),
                 onTap: _toggleLike,
               ),
@@ -287,7 +304,8 @@ class _ShareSheet extends StatelessWidget {
           children: [
             const SizedBox(height: 12),
             Container(
-              width: 36, height: 4,
+              width: 36,
+              height: 4,
               decoration: BoxDecoration(
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2),
@@ -296,10 +314,7 @@ class _ShareSheet extends StatelessWidget {
             const SizedBox(height: 16),
             const Text(
               'Share Reel',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
             Row(
