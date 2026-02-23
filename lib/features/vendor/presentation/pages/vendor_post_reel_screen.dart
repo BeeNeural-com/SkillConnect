@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../services/cloudinary_service.dart';
+import '../../../../services/gcs_service.dart';
 
 class VendorPostReelScreen extends StatefulWidget {
   const VendorPostReelScreen({super.key});
@@ -32,10 +32,7 @@ class _VendorPostReelScreenState extends State<VendorPostReelScreen> {
 
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -59,16 +56,14 @@ class _VendorPostReelScreenState extends State<VendorPostReelScreen> {
         'Selected video: path=${_selectedVideo!.path}, bytes=$fileSize',
       );
 
-      final cloudinary = CloudinaryService();
+      final gcsService = GCSService();
       if (kDebugMode) {
         debugPrint(
-          'Using cloud=${cloudinary.cloudName}, preset=${cloudinary.uploadPreset}',
+          'Using GCS: project=${gcsService.projectId}, bucket=${gcsService.bucketName}',
         );
-        _showSnack(
-          'Cloudinary preset: ${cloudinary.uploadPreset} on ${cloudinary.cloudName}',
-        );
+        _showSnack('Uploading to GCS bucket: ${gcsService.bucketName}');
       }
-      final response = await cloudinary.uploadVideo(
+      final videoUrl = await gcsService.uploadVideo(
         _selectedVideo!,
         onProgress: (sent, total) {
           if (total > 0) {
@@ -80,7 +75,7 @@ class _VendorPostReelScreenState extends State<VendorPostReelScreen> {
         },
       );
 
-      final cleanUrl = response.secureUrl.trim();
+      final cleanUrl = videoUrl.trim();
       setState(() {
         _uploadedUrl = cleanUrl;
         _isUploading = false;
@@ -92,7 +87,7 @@ class _VendorPostReelScreenState extends State<VendorPostReelScreen> {
         _isUploading = false;
       });
       debugPrint('Upload failed: $e');
-      if (e is CloudinaryUploadFailure) {
+      if (e is GCSUploadFailure) {
         _showSnack(e.message);
       } else {
         _showSnack('Upload failed. Check console for details');
@@ -117,8 +112,13 @@ class _VendorPostReelScreenState extends State<VendorPostReelScreen> {
           .doc(user.uid)
           .get();
       final userName = userDoc.data()?['name'] as String? ?? 'Vendor';
+
+      // Generate short ID from video URL
+      final shortId = _generateShortId(_uploadedUrl!);
+
       await FirebaseFirestore.instance.collection('reels').add({
         'videoUrl': _uploadedUrl,
+        'shortId': shortId,
         'caption': _captionController.text.trim(),
         'userId': user.uid,
         'userName': userName,
@@ -142,6 +142,21 @@ class _VendorPostReelScreenState extends State<VendorPostReelScreen> {
       if (mounted) {
         setState(() => _isPosting = false);
       }
+    }
+  }
+
+  /// Generate a short ID from the video URL
+  /// Extracts the UUID from the GCS URL and uses the first segment
+  String _generateShortId(String videoUrl) {
+    try {
+      final uri = Uri.parse(videoUrl);
+      final filename = uri.pathSegments.last;
+      final uuid = filename.replaceAll('.mp4', '').replaceAll('.mov', '');
+      // Use first 8 characters of UUID for short ID
+      return uuid.split('-').first;
+    } catch (e) {
+      // Fallback: generate random short ID
+      return DateTime.now().millisecondsSinceEpoch.toString().substring(5);
     }
   }
 
@@ -182,7 +197,9 @@ class _VendorPostReelScreenState extends State<VendorPostReelScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _selectedVideo!.path.split(Platform.pathSeparator).last,
+                            _selectedVideo!.path
+                                .split(Platform.pathSeparator)
+                                .last,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 12,
