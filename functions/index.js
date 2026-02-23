@@ -107,6 +107,8 @@ exports.migrateReels = onRequest(async (req, res) => {
 
 /**
  * Cloud Function that redirects short reel URLs to actual GCS video URLs
+ * For browser requests, serves an HTML page with app install prompt
+ * For app requests, redirects to the video URL
  * Example: /reels/abc123 -> https://storage.googleapis.com/skillconnect-storage/vendor_reels/abc123-....mp4
  */
 exports.reelRedirect = onRequest(async (req, res) => {
@@ -173,9 +175,141 @@ exports.reelRedirect = onRequest(async (req, res) => {
         const reel = snapshot.docs[0].data();
         const videoUrl = reel.videoUrl;
 
-        console.log('Redirecting to:', videoUrl);
+        // Check if request is from a browser (has User-Agent with Mozilla)
+        const userAgent = req.headers['user-agent'] || '';
+        const isBrowser = userAgent.includes('Mozilla') && !userAgent.includes('SkillConnect');
 
-        // Redirect to actual video URL
+        if (isBrowser) {
+            // Serve HTML page with app link and install prompt
+            console.log('Serving HTML page for browser request');
+            return res.send(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>SkillConnect - Open in App</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            min-height: 100vh;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 20px;
+                        }
+                        .container {
+                            background: white;
+                            border-radius: 20px;
+                            padding: 40px 30px;
+                            max-width: 400px;
+                            width: 100%;
+                            text-align: center;
+                            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                        }
+                        .logo {
+                            width: 80px;
+                            height: 80px;
+                            margin: 0 auto 20px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            border-radius: 20px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 40px;
+                            color: white;
+                            font-weight: bold;
+                        }
+                        h1 { font-size: 24px; color: #333; margin-bottom: 10px; }
+                        p { color: #666; margin-bottom: 30px; line-height: 1.6; }
+                        .btn {
+                            display: block;
+                            width: 100%;
+                            padding: 16px;
+                            border: none;
+                            border-radius: 12px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            text-decoration: none;
+                            transition: transform 0.2s;
+                            margin-bottom: 12px;
+                        }
+                        .btn:active { transform: scale(0.98); }
+                        .btn-primary {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                        }
+                        .btn-secondary { background: #f5f5f5; color: #333; }
+                        .loading { display: none; margin: 20px 0; }
+                        .spinner {
+                            border: 3px solid #f3f3f3;
+                            border-top: 3px solid #667eea;
+                            border-radius: 50%;
+                            width: 40px;
+                            height: 40px;
+                            animation: spin 1s linear infinite;
+                            margin: 0 auto;
+                        }
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="logo">SC</div>
+                        <h1>Open in SkillConnect</h1>
+                        <p id="message">View this reel in the SkillConnect app for the best experience</p>
+                        
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p style="margin-top: 10px; color: #666;">Opening app...</p>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="openAppBtn" onclick="openApp()">
+                            Open in App
+                        </button>
+                        
+                        <div id="installSection" style="display: none;">
+                            <p style="margin: 20px 0;">Don't have the app?</p>
+                            <a href="https://play.google.com/store/apps/details?id=com.example.skillconnect" class="btn btn-secondary" target="_blank">
+                                Download from Play Store
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        const appUrl = 'https://skill-connect-9d6b3.web.app/reels/${shortId}';
+                        
+                        function openApp() {
+                            document.getElementById('loading').style.display = 'block';
+                            document.getElementById('openAppBtn').style.display = 'none';
+                            
+                            window.location.href = appUrl;
+                            
+                            setTimeout(() => {
+                                document.getElementById('loading').style.display = 'none';
+                                document.getElementById('installSection').style.display = 'block';
+                                document.getElementById('message').textContent = 'App not installed?';
+                            }, 2000);
+                        }
+                        
+                        window.addEventListener('load', () => {
+                            setTimeout(openApp, 500);
+                        });
+                    </script>
+                </body>
+                </html>
+            `);
+        }
+
+        // For app requests, redirect to video URL
+        console.log('Redirecting to:', videoUrl);
         res.redirect(302, videoUrl);
     } catch (error) {
         console.error('Error in reelRedirect:', error);

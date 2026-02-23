@@ -48,6 +48,18 @@
                 
                 <data android:scheme="com.example.skillconnect" />
             </intent-filter>
+            
+            <!-- App Links for Reel Deep Linking -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                
+                <data
+                    android:scheme="https"
+                    android:host="skill-connect-9d6b3.web.app"
+                    android:pathPrefix="/reels" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

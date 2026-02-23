@@ -23,7 +23,7 @@ class _ReelItemState extends State<ReelItem> {
   late bool _isLiked;
   late int _likeCount;
   late int _commentCount;
-  bool _isSharing = false;
+  final bool _isSharing = false;
 
   @override
   void initState() {

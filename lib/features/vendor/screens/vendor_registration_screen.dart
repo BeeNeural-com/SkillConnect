@@ -478,7 +478,7 @@ class _VendorRegistrationScreenState
             onChanged: (value) {
               setState(() => _isAvailable = value);
             },
-            activeColor: AppTheme.successColor,
+            activeThumbColor: AppTheme.successColor,
           ),
         ],
       ),

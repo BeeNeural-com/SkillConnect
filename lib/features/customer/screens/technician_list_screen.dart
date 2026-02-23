@@ -330,7 +330,7 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                     ),
                     subtitle: const Text('Show only available technicians'),
                     value: _availableOnly,
-                    activeColor: AppTheme.successColor,
+                    activeThumbColor: AppTheme.successColor,
                     onChanged: (value) {
                       setModalState(() => _availableOnly = value);
                     },
