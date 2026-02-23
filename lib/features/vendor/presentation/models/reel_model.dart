@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ReelModel {
   final String id;
   final String videoUrl;
+  final String? shortId;
   final String caption;
   final String userName;
   final List<String> likes;
@@ -13,6 +14,7 @@ class ReelModel {
   const ReelModel({
     required this.id,
     required this.videoUrl,
+    this.shortId,
     this.caption = '',
     this.userName = 'Vendor',
     this.likes = const [],
@@ -23,11 +25,13 @@ class ReelModel {
 
   factory ReelModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
-    final likes =
-        data['likes'] is List ? List<String>.from(data['likes']) : <String>[];
+    final likes = data['likes'] is List
+        ? List<String>.from(data['likes'])
+        : <String>[];
     return ReelModel(
       id: doc.id,
       videoUrl: (data['videoUrl'] ?? '') as String,
+      shortId: data['shortId'] as String?,
       caption: (data['caption'] ?? '') as String,
       userName: (data['userName'] ?? 'Vendor') as String,
       likes: likes,
@@ -39,6 +43,7 @@ class ReelModel {
 
   ReelModel copyWith({
     String? videoUrl,
+    String? shortId,
     int? likeCount,
     int? commentCount,
     List<String>? likes,
@@ -46,6 +51,7 @@ class ReelModel {
     return ReelModel(
       id: id,
       videoUrl: videoUrl ?? this.videoUrl,
+      shortId: shortId ?? this.shortId,
       caption: caption,
       userName: userName,
       likes: likes ?? this.likes,
