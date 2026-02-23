@@ -29,7 +29,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
   final _locationService = LocationService();
   final _storageService = StorageService();
 
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   double? _latitude;
   double? _longitude;
   bool _isLoadingLocation = false;

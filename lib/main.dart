@@ -11,10 +11,12 @@ import 'features/auth/screens/role_selection_screen.dart';
 import 'features/customer/screens/customer_home_screen.dart';
 import 'features/vendor/presentation/pages/vendor_shell_screen.dart';
 import 'features/onboarding/screens/app_onboarding_screen.dart';
+import 'features/shared/screens/reel_deep_link_screen.dart';
 import 'providers/auth_provider.dart';
 import 'core/constants/app_constants.dart';
 import 'services/notification_service.dart';
 import 'services/onboarding_service.dart';
+import 'services/deep_link_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +44,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _showSplash = true;
+  final DeepLinkService _deepLinkService = DeepLinkService();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -54,11 +58,42 @@ class _MyAppState extends State<MyApp> {
         });
       }
     });
+
+    // Initialize deep links
+    _initDeepLinks();
+  }
+
+  Future<void> _initDeepLinks() async {
+    // Handle initial link (cold start)
+    final initialReelId = await _deepLinkService.getInitialLink();
+    if (initialReelId != null) {
+      debugPrint('Initial deep link detected: $initialReelId');
+      // Navigate after splash screen
+      Future.delayed(const Duration(seconds: 4, milliseconds: 500), () {
+        _navigateToReel(initialReelId);
+      });
+    }
+
+    // Listen for deep links while app is running
+    _deepLinkService.initialize((reelId) {
+      debugPrint('Deep link received while running: $reelId');
+      _navigateToReel(reelId);
+    });
+  }
+
+  void _navigateToReel(String shortId) {
+    final context = _navigatorKey.currentContext;
+    if (context != null && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => ReelDeepLinkScreen(shortId: shortId)),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Skill Connect',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,

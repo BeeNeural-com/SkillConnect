@@ -202,8 +202,9 @@ class VendorHomeScreen extends ConsumerWidget {
 
         return userAsync.when(
           data: (user) {
-            if (user == null)
+            if (user == null) {
               return const Center(child: Text('User not found'));
+            }
 
             final technicianAsync = ref.watch(
               technicianProfileProvider(user.id),
