@@ -124,9 +124,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 'otherUserName': senderName,
               },
             );
-        print('✓ Chat notification sent to: ${widget.otherUserId}');
+        debugPrint('✓ Chat notification sent to: ${widget.otherUserId}');
       } catch (e) {
-        print('✗ Error sending chat notification: $e');
+        debugPrint('✗ Error sending chat notification: $e');
       }
 
       // Scroll to bottom
@@ -215,7 +215,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         gradient: AppTheme.primaryGradient,
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
+            color: AppTheme.primaryColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -227,7 +227,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -244,7 +244,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 width: 2,
               ),
             ),
@@ -278,13 +278,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     widget.booking.serviceCategory,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -312,7 +312,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.3),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -372,7 +372,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.textSecondaryColor.withOpacity(0.1),
+                color: AppTheme.textSecondaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -398,7 +398,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -437,7 +437,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.4),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -502,8 +502,8 @@ class _MessageBubble extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: isMe
-                  ? AppTheme.primaryColor.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.05),
+                  ? AppTheme.primaryColor.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

@@ -57,7 +57,7 @@ class _BookingDetailVendorScreenState
               data: {'bookingId': widget.booking.id},
             );
       } catch (e) {
-        print('Error sending notification: $e');
+        debugPrint('Error sending notification: $e');
       }
 
       if (mounted) {
@@ -161,7 +161,7 @@ class _BookingDetailVendorScreenState
               data: {'bookingId': widget.booking.id},
             );
       } catch (e) {
-        print('Error sending notification: $e');
+        debugPrint('Error sending notification: $e');
       }
 
       if (mounted) {
@@ -235,7 +235,7 @@ class _BookingDetailVendorScreenState
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.secondaryColor.withOpacity(0.1),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -261,7 +261,7 @@ class _BookingDetailVendorScreenState
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -294,14 +294,14 @@ class _BookingDetailVendorScreenState
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [_getStatusColor(), _getStatusColor().withOpacity(0.7)],
+          colors: [_getStatusColor(), _getStatusColor().withValues(alpha: 0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: _getStatusColor().withOpacity(0.3),
+            color: _getStatusColor().withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -312,7 +312,7 @@ class _BookingDetailVendorScreenState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(_getStatusIcon(), color: Colors.white, size: 32),
@@ -335,7 +335,7 @@ class _BookingDetailVendorScreenState
                   _getStatusMessage(),
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -508,7 +508,7 @@ class _BookingDetailVendorScreenState
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -648,7 +648,7 @@ class _BookingDetailVendorScreenState
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.secondaryColor.withOpacity(0.4),
+                        color: AppTheme.secondaryColor.withValues(alpha: 0.4),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -693,7 +693,7 @@ class _BookingDetailVendorScreenState
                 borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.4),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -727,7 +727,7 @@ class _BookingDetailVendorScreenState
                 borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.successColor.withOpacity(0.4),
+                    color: AppTheme.successColor.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),

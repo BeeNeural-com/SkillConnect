@@ -1,5 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../../firebase_options.dart';
 
 class FirebaseConfig {
@@ -10,11 +10,11 @@ class FirebaseConfig {
       );
       
       if (kDebugMode) {
-        print('Firebase initialized successfully');
+        debugPrint('Firebase initialized successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing Firebase: $e');
+        debugPrint('Error initializing Firebase: $e');
       }
       rethrow;
     }

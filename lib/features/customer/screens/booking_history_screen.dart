@@ -78,7 +78,7 @@ class BookingHistoryScreen extends ConsumerWidget {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: AppTheme.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -114,7 +114,7 @@ class BookingHistoryScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.3),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -190,7 +190,7 @@ class _BookingCard extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             _getStatusColor(),
-                            _getStatusColor().withOpacity(0.7),
+                            _getStatusColor().withValues(alpha: 0.7),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -221,7 +221,7 @@ class _BookingCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: _getStatusColor().withOpacity(0.1),
+                              color: _getStatusColor().withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -239,7 +239,7 @@ class _BookingCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(

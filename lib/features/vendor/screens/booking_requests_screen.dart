@@ -42,7 +42,7 @@ class BookingRequestsScreen extends ConsumerWidget {
               data: {'bookingId': booking.id},
             );
       } catch (e) {
-        print('Error sending notification: $e');
+        debugPrint('Error sending notification: $e');
       }
 
       if (context.mounted) {
@@ -135,7 +135,7 @@ class BookingRequestsScreen extends ConsumerWidget {
                 data: {'bookingId': booking.id},
               );
         } catch (e) {
-          print('Error sending notification: $e');
+          debugPrint('Error sending notification: $e');
         }
 
         if (context.mounted) {
@@ -187,8 +187,8 @@ class BookingRequestsScreen extends ConsumerWidget {
               }
 
               // Use userId instead of document id for querying bookings
-              print('🔍 Querying bookings for userId: ${technician.userId}');
-              print('🔍 Technician document ID: ${technician.id}');
+              debugPrint('🔍 Querying bookings for userId: ${technician.userId}');
+              debugPrint('🔍 Technician document ID: ${technician.id}');
               final requestsAsync = ref.watch(
                 vendorPendingRequestsProvider(technician.userId),
               );
@@ -253,7 +253,7 @@ class BookingRequestsScreen extends ConsumerWidget {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.secondaryColor.withOpacity(0.1),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -289,7 +289,7 @@ class BookingRequestsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.secondaryColor.withOpacity(0.3),
+                    color: AppTheme.secondaryColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -360,7 +360,7 @@ class _BookingRequestCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.secondaryColor.withOpacity(0.3),
+                        color: AppTheme.secondaryColor.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -414,7 +414,7 @@ class _BookingRequestCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.warningColor.withOpacity(0.1),
+                    color: AppTheme.warningColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Row(
@@ -536,7 +536,7 @@ class _BookingRequestCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.successColor.withOpacity(0.4),
+                          color: AppTheme.successColor.withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -578,7 +578,7 @@ class _BookingRequestCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.errorColor.withOpacity(0.4),
+                          color: AppTheme.errorColor.withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),

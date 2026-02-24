@@ -69,7 +69,7 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                 data: {'bookingId': widget.booking.id},
               );
         } catch (e) {
-          print('Error sending notification: $e');
+          debugPrint('Error sending notification: $e');
         }
 
         if (context.mounted) {

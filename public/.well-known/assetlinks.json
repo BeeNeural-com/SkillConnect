@@ -1,0 +1,11 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.skillconnect",
+    "sha256_cert_fingerprints": [
+      "09:BE:B4:F3:83:2D:5C:1C:12:EF:06:0D:90:21:67:9D:92:9A:8B:E8:A7:26:06:E7:9E:85:28:BD:B7:E3:44:D7",
+      "09:BE:B4:F3:83:2D:5C:1C:12:EF:06:0D:90:21:67:9D:92:9A:8B:E8:A7:26:06:E7:9E:85:28:BD:B7:E3:44:D7"
+    ]
+  }
+}]

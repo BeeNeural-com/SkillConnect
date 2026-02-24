@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,7 +35,7 @@ final userBookingsProvider = StreamProvider.family<List<BookingModel>, String>((
 final vendorBookingsProvider = StreamProvider.family<List<BookingModel>, String>(
   (ref, technicianId) {
     final firestore = FirebaseFirestore.instance;
-    print(
+    debugPrint(
       '📋 vendorBookingsProvider: Querying for technicianId: $technicianId',
     );
     return firestore
@@ -42,13 +43,13 @@ final vendorBookingsProvider = StreamProvider.family<List<BookingModel>, String>
         .where('technicianId', isEqualTo: technicianId)
         .snapshots()
         .map((snapshot) {
-          print(
+          debugPrint(
             '📋 vendorBookingsProvider: Found ${snapshot.docs.length} bookings',
           );
           if (snapshot.docs.isNotEmpty) {
             for (var doc in snapshot.docs) {
               final data = doc.data();
-              print('  - Booking ${doc.id}: status=${data['status']}');
+              debugPrint('  - Booking ${doc.id}: status=${data['status']}');
             }
           }
           final bookings = snapshot.docs
@@ -64,7 +65,7 @@ final vendorBookingsProvider = StreamProvider.family<List<BookingModel>, String>
 final vendorPendingRequestsProvider =
     StreamProvider.family<List<BookingModel>, String>((ref, technicianId) {
       final firestore = FirebaseFirestore.instance;
-      print(
+      debugPrint(
         '📋 vendorPendingRequestsProvider querying for technicianId: $technicianId',
       );
       return firestore
@@ -73,11 +74,11 @@ final vendorPendingRequestsProvider =
           .where('status', isEqualTo: AppConstants.statusPending)
           .snapshots()
           .map((snapshot) {
-            print('📋 Found ${snapshot.docs.length} pending bookings');
+            debugPrint('📋 Found ${snapshot.docs.length} pending bookings');
             if (snapshot.docs.isNotEmpty) {
               for (var doc in snapshot.docs) {
                 final data = doc.data();
-                print(
+                debugPrint(
                   '  - Booking ${doc.id}: technicianId=${data['technicianId']}, status=${data['status']}',
                 );
               }

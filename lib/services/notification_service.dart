@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +9,7 @@ import '../models/notification_model.dart';
 /// Background message handler - must be top-level function
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling background message: ${message.messageId}');
+  debugPrint('Handling background message: ${message.messageId}');
   // Background messages are handled by the system notification
 }
 
@@ -56,9 +57,9 @@ class NotificationService {
       }
 
       _initialized = true;
-      print('NotificationService initialized successfully');
+      debugPrint('NotificationService initialized successfully');
     } catch (e) {
-      print('Error initializing NotificationService: $e');
+      debugPrint('Error initializing NotificationService: $e');
     }
   }
 
@@ -72,12 +73,12 @@ class NotificationService {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted notification permission');
+      debugPrint('User granted notification permission');
     } else if (settings.authorizationStatus ==
         AuthorizationStatus.provisional) {
-      print('User granted provisional notification permission');
+      debugPrint('User granted provisional notification permission');
     } else {
-      print('User declined notification permission');
+      debugPrint('User declined notification permission');
     }
   }
 
@@ -114,28 +115,28 @@ class NotificationService {
   Future<void> _saveFCMToken() async {
     try {
       final token = await _fcm.getToken();
-      print('=== FCM TOKEN ===');
-      print('Token: $token');
+      debugPrint('=== FCM TOKEN ===');
+      debugPrint('Token: $token');
 
       if (token != null) {
         final userId = _auth.currentUser?.uid;
-        print('Current User ID: $userId');
+        debugPrint('Current User ID: $userId');
 
         if (userId != null) {
           await _firestore.collection('users').doc(userId).update({
             'fcmToken': token,
             'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
           });
-          print('✓ FCM token saved successfully to Firestore');
+          debugPrint('✓ FCM token saved successfully to Firestore');
         } else {
-          print('✗ ERROR: No user logged in, cannot save FCM token');
+          debugPrint('✗ ERROR: No user logged in, cannot save FCM token');
         }
       } else {
-        print('✗ ERROR: Failed to get FCM token from device');
+        debugPrint('✗ ERROR: Failed to get FCM token from device');
       }
-      print('=================');
+      debugPrint('=================');
     } catch (e) {
-      print('✗ ERROR saving FCM token: $e');
+      debugPrint('✗ ERROR saving FCM token: $e');
     }
   }
 
@@ -148,16 +149,16 @@ class NotificationService {
           'fcmToken': token,
           'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
         });
-        print('FCM token updated: $token');
+        debugPrint('FCM token updated: $token');
       }
     } catch (e) {
-      print('Error updating FCM token: $e');
+      debugPrint('Error updating FCM token: $e');
     }
   }
 
   /// Handle foreground messages
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    print('Foreground message received: ${message.messageId}');
+    debugPrint('Foreground message received: ${message.messageId}');
 
     // Do NOT save to Firestore here, as the notification likely originated from Firestore
     // and saving it again would trigger the Cloud Function loop.
@@ -194,14 +195,14 @@ class NotificationService {
 
   /// Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
-    print('Notification tapped: ${response.payload}');
+    debugPrint('Notification tapped: ${response.payload}');
     // Navigation will be handled by the app's navigation logic
     // The payload contains the notification type
   }
 
   /// Handle notification tap when app is in background
   void _handleNotificationTap(RemoteMessage message) {
-    print('Notification opened app: ${message.data}');
+    debugPrint('Notification opened app: ${message.data}');
     // Navigation logic will be implemented in the main app
   }
 
@@ -214,11 +215,11 @@ class NotificationService {
     Map<String, dynamic>? data,
   }) async {
     try {
-      print('=== SENDING NOTIFICATION ===');
-      print('To User ID: $userId');
-      print('Title: $title');
-      print('Body: $body');
-      print('Type: $type');
+      debugPrint('=== SENDING NOTIFICATION ===');
+      debugPrint('To User ID: $userId');
+      debugPrint('Title: $title');
+      debugPrint('Body: $body');
+      debugPrint('Type: $type');
 
       // Save notification to Firestore
       final notification = NotificationModel(
@@ -236,31 +237,31 @@ class NotificationService {
           .collection('notifications')
           .add(notification.toFirestore());
 
-      print('✓ Notification saved to Firestore with ID: ${docRef.id}');
+      debugPrint('✓ Notification saved to Firestore with ID: ${docRef.id}');
 
       // Get user's FCM token
       final userDoc = await _firestore.collection('users').doc(userId).get();
 
       if (!userDoc.exists) {
-        print('✗ ERROR: User document not found for userId: $userId');
+        debugPrint('✗ ERROR: User document not found for userId: $userId');
         return;
       }
 
       final fcmToken = userDoc.data()?['fcmToken'] as String?;
 
       if (fcmToken != null) {
-        print('✓ User has FCM token: ${fcmToken.substring(0, 20)}...');
-        print('✓ Cloud Function should send push notification now');
+        debugPrint('✓ User has FCM token: ${fcmToken.substring(0, 20)}...');
+        debugPrint('✓ Cloud Function should send push notification now');
       } else {
-        print(
+        debugPrint(
           '✗ WARNING: User has no FCM token saved. Push notification will not be sent.',
         );
-        print('  User needs to open the app to register FCM token.');
+        debugPrint('  User needs to open the app to register FCM token.');
       }
 
-      print('=== NOTIFICATION PROCESS COMPLETE ===');
+      debugPrint('=== NOTIFICATION PROCESS COMPLETE ===');
     } catch (e) {
-      print('✗ ERROR sending notification: $e');
+      debugPrint('✗ ERROR sending notification: $e');
       rethrow;
     }
   }
@@ -272,7 +273,7 @@ class NotificationService {
         'isRead': true,
       });
     } catch (e) {
-      print('Error marking notification as read: $e');
+      debugPrint('Error marking notification as read: $e');
     }
   }
 
@@ -281,7 +282,7 @@ class NotificationService {
     try {
       await _firestore.collection('notifications').doc(notificationId).delete();
     } catch (e) {
-      print('Error deleting notification: $e');
+      debugPrint('Error deleting notification: $e');
     }
   }
 
@@ -302,7 +303,7 @@ class NotificationService {
       }
       await batch.commit();
     } catch (e) {
-      print('Error clearing notifications: $e');
+      debugPrint('Error clearing notifications: $e');
     }
   }
 }

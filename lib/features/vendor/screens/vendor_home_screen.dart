@@ -96,7 +96,7 @@ class VendorHomeScreen extends ConsumerWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.3),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -202,8 +202,9 @@ class VendorHomeScreen extends ConsumerWidget {
 
         return userAsync.when(
           data: (user) {
-            if (user == null)
+            if (user == null) {
               return const Center(child: Text('User not found'));
+            }
 
             final technicianAsync = ref.watch(
               technicianProfileProvider(user.id),
@@ -282,7 +283,7 @@ class VendorHomeScreen extends ConsumerWidget {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.secondaryColor.withOpacity(0.1),
+                    color: AppTheme.secondaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -331,7 +332,7 @@ class VendorHomeScreen extends ConsumerWidget {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.secondaryColor.withOpacity(0.1),
+                color: AppTheme.secondaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -351,7 +352,7 @@ class VendorHomeScreen extends ConsumerWidget {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.secondaryColor.withOpacity(0.1),
+                color: AppTheme.secondaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -382,7 +383,7 @@ class VendorHomeScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.secondaryColor.withOpacity(0.3),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -418,7 +419,7 @@ class VendorHomeScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Row(
@@ -447,7 +448,7 @@ class VendorHomeScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -622,14 +623,14 @@ class VendorHomeScreen extends ConsumerWidget {
                 height: 56,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [color, color.withOpacity(0.7)],
+                    colors: [color, color.withValues(alpha: 0.7)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: color.withOpacity(0.3),
+                      color: color.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -664,7 +665,7 @@ class VendorHomeScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -707,8 +708,8 @@ class VendorHomeScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryColor.withOpacity(0.1),
-                  AppTheme.secondaryColor.withOpacity(0.1),
+                  AppTheme.primaryColor.withValues(alpha: 0.1),
+                  AppTheme.secondaryColor.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

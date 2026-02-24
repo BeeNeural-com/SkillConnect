@@ -125,9 +125,17 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
               type: NotificationType.bookingRequest,
               data: {'bookingId': docRef.id},
             );
-        print('✓ Notification sent to technician: $technicianId');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✓ Notification sent to technician')),
+          );
+        }
       } catch (e) {
-        print('Error sending notification: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error sending notification: $e')),
+          );
+        }
       }
 
       if (context.mounted) {
@@ -294,9 +302,9 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: AppTheme.primaryColor,
-                    inactiveTrackColor: AppTheme.primaryColor.withOpacity(0.2),
+                    inactiveTrackColor: AppTheme.primaryColor.withValues(alpha: 0.2),
                     thumbColor: AppTheme.primaryColor,
-                    overlayColor: AppTheme.primaryColor.withOpacity(0.2),
+                    overlayColor: AppTheme.primaryColor.withValues(alpha: 0.2),
                   ),
                   child: Slider(
                     value: _minRating,
@@ -322,7 +330,7 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                     ),
                     subtitle: const Text('Show only available technicians'),
                     value: _availableOnly,
-                    activeColor: AppTheme.successColor,
+                    activeThumbColor: AppTheme.successColor,
                     onChanged: (value) {
                       setModalState(() => _availableOnly = value);
                     },
@@ -410,7 +418,7 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: AppTheme.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -434,7 +442,7 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -486,7 +494,7 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -674,7 +682,7 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.warningColor.withOpacity(0.1),
+                                  color: AppTheme.warningColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Row(
@@ -715,8 +723,8 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: isAvailable
-                                  ? AppTheme.successColor.withOpacity(0.1)
-                                  : AppTheme.errorColor.withOpacity(0.1),
+                                  ? AppTheme.successColor.withValues(alpha: 0.1)
+                                  : AppTheme.errorColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -758,10 +766,10 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppTheme.primaryColor.withOpacity(0.3),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -873,8 +881,8 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppTheme.primaryColor.withOpacity(
-                                      0.4,
+                                    color: AppTheme.primaryColor.withValues(
+                                      alpha: 0.4,
                                     ),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
@@ -921,7 +929,7 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 64, color: AppTheme.primaryColor),

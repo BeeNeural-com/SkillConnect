@@ -29,7 +29,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
   final _locationService = LocationService();
   final _storageService = StorageService();
 
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   double? _latitude;
   double? _longitude;
   bool _isLoadingLocation = false;
@@ -404,7 +404,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: AppTheme.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -427,7 +427,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
         background: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppTheme.primaryColor.withOpacity(0.1), Colors.white],
+              colors: [AppTheme.primaryColor.withValues(alpha: 0.1), Colors.white],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -554,7 +554,7 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.secondaryColor.withOpacity(0.4),
+                      color: AppTheme.secondaryColor.withValues(alpha: 0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -642,10 +642,10 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.successColor.withOpacity(0.1),
+                color: AppTheme.successColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 border: Border.all(
-                  color: AppTheme.successColor.withOpacity(0.3),
+                  color: AppTheme.successColor.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(

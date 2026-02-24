@@ -222,7 +222,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: AppTheme.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -252,7 +252,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
+            color: AppTheme.primaryColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -263,7 +263,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -286,14 +286,14 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               widget.booking.serviceCategory,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -328,7 +328,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
                 size: 56,
                 color: _rating >= starValue
                     ? AppTheme.warningColor
-                    : AppTheme.textSecondaryColor.withOpacity(0.3),
+                    : AppTheme.textSecondaryColor.withValues(alpha: 0.3),
               ),
             ),
           );
@@ -343,8 +343,8 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warningColor.withOpacity(0.1),
-            AppTheme.warningColor.withOpacity(0.05),
+            AppTheme.warningColor.withValues(alpha: 0.1),
+            AppTheme.warningColor.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
@@ -406,7 +406,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.4),
+            color: AppTheme.primaryColor.withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

@@ -115,7 +115,7 @@ class _VendorProfileViewScreenState
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: AppTheme.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -151,7 +151,7 @@ class _VendorProfileViewScreenState
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.secondaryColor.withOpacity(0.3),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -166,8 +166,8 @@ class _VendorProfileViewScreenState
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [
-                  Colors.white.withOpacity(0.8),
-                  Colors.white.withOpacity(0.4),
+                  Colors.white.withValues(alpha: 0.8),
+                  Colors.white.withValues(alpha: 0.4),
                 ],
               ),
             ),
@@ -197,7 +197,7 @@ class _VendorProfileViewScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Row(
@@ -221,7 +221,7 @@ class _VendorProfileViewScreenState
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(AppTheme.radiusLg),
             ),
             child: Row(
@@ -260,7 +260,7 @@ class _VendorProfileViewScreenState
                 Container(
                   width: 1,
                   height: 60,
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                 ),
                 Column(
                   children: [
@@ -268,8 +268,8 @@ class _VendorProfileViewScreenState
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: isAvailable
-                            ? Colors.green.withOpacity(0.3)
-                            : Colors.red.withOpacity(0.3),
+                            ? Colors.green.withValues(alpha: 0.3)
+                            : Colors.red.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -325,13 +325,13 @@ class _VendorProfileViewScreenState
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.secondaryColor.withOpacity(0.1),
-                      AppTheme.secondaryColor.withOpacity(0.05),
+                      AppTheme.secondaryColor.withValues(alpha: 0.1),
+                      AppTheme.secondaryColor.withValues(alpha: 0.05),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   border: Border.all(
-                    color: AppTheme.secondaryColor.withOpacity(0.3),
+                    color: AppTheme.secondaryColor.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -399,7 +399,7 @@ class _VendorProfileViewScreenState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                   child: Row(
@@ -483,7 +483,7 @@ class _VendorProfileViewScreenState
                       Icon(
                         Icons.rate_review_outlined,
                         size: 48,
-                        color: AppTheme.textSecondaryColor.withOpacity(0.5),
+                        color: AppTheme.textSecondaryColor.withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 12),
                       const Text(
@@ -572,7 +572,7 @@ class _VendorProfileViewScreenState
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppTheme.textSecondaryColor.withOpacity(0.1),
+                  color: AppTheme.textSecondaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: AppTheme.textSecondaryColor, size: 20),
@@ -650,7 +650,7 @@ class _VendorProfileViewScreenState
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-              border: Border.all(color: AppTheme.errorColor.withOpacity(0.3)),
+              border: Border.all(color: AppTheme.errorColor.withValues(alpha: 0.3)),
               boxShadow: AppTheme.shadowSm,
             ),
             child: Row(
@@ -658,7 +658,7 @@ class _VendorProfileViewScreenState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.errorColor.withOpacity(0.1),
+                    color: AppTheme.errorColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -732,7 +732,7 @@ class _ReviewCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.warningColor.withOpacity(0.1),
+                  color: AppTheme.warningColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

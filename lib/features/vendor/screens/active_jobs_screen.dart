@@ -34,7 +34,7 @@ class ActiveJobsScreen extends ConsumerWidget {
               }
 
               // Use userId instead of document id for querying bookings
-              print(
+              debugPrint(
                 '🔍 Active Jobs: Querying for userId: ${technician.userId}',
               );
               final bookingsAsync = ref.watch(
@@ -43,9 +43,9 @@ class ActiveJobsScreen extends ConsumerWidget {
 
               return bookingsAsync.when(
                 data: (bookings) {
-                  print('📊 Active Jobs: Total bookings: ${bookings.length}');
+                  debugPrint('📊 Active Jobs: Total bookings: ${bookings.length}');
                   for (var booking in bookings) {
-                    print(
+                    debugPrint(
                       '  - Booking ${booking.id}: status=${booking.status}',
                     );
                   }
@@ -58,7 +58,7 @@ class ActiveJobsScreen extends ConsumerWidget {
                       )
                       .toList();
 
-                  print(
+                  debugPrint(
                     '✅ Active Jobs: Found ${activeJobs.length} active jobs',
                   );
 
@@ -109,7 +109,7 @@ class ActiveJobsScreen extends ConsumerWidget {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.secondaryColor.withOpacity(0.1),
+            color: AppTheme.secondaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Icon(
@@ -145,7 +145,7 @@ class ActiveJobsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.secondaryColor.withOpacity(0.3),
+                    color: AppTheme.secondaryColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -230,7 +230,7 @@ class _ActiveJobCard extends StatelessWidget {
                                 (isInProgress
                                         ? AppTheme.primaryColor
                                         : AppTheme.secondaryColor)
-                                    .withOpacity(0.3),
+                                    .withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -268,7 +268,7 @@ class _ActiveJobCard extends StatelessWidget {
                                   (isInProgress
                                           ? AppTheme.primaryColor
                                           : AppTheme.secondaryColor)
-                                      .withOpacity(0.1),
+                                      .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -288,7 +288,7 @@ class _ActiveJobCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
