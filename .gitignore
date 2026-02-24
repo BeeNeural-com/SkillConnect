@@ -54,3 +54,7 @@ firebase.json
 .env.local
 .env.*.local
 .env.example
+
+.firebase
+.vscode
+android/gradle.properties
