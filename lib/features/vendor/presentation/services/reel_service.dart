@@ -121,6 +121,60 @@ class ReelService {
         .update({'commentCount': FieldValue.increment(1)});
   }
 
+  /// Checks if a reel is saved by the current user.
+  Future<bool> isReelSaved(String reelId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return false;
+
+    final doc = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('savedReels')
+        .doc(reelId)
+        .get();
+
+    return doc.exists;
+  }
+
+  /// Toggles the saved state for a reel.
+  /// Saves to users/{userId}/savedReels/{reelId}
+  Future<void> toggleSaveReel({
+    required String reelId,
+    required bool isSaved,
+  }) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final savedReelRef = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('savedReels')
+        .doc(reelId);
+
+    if (isSaved) {
+      await savedReelRef.set({
+        'reelId': reelId,
+        'savedAt': FieldValue.serverTimestamp(),
+      });
+    } else {
+      await savedReelRef.delete();
+    }
+  }
+
+  /// Returns a stream of saved reel IDs for the current user.
+  Stream<List<String>> savedReelIdsStream() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return Stream.value([]);
+
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('savedReels')
+        .orderBy('savedAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList());
+  }
+
   /// Returns the current user's UID, or null if unauthenticated.
   String? get currentUserId => _auth.currentUser?.uid;
 }
