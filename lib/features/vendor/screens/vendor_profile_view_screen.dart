@@ -12,6 +12,7 @@ import '../../auth/screens/google_signin_screen.dart';
 import '../../shared/screens/terms_of_service_screen.dart';
 import '../../shared/screens/privacy_policy_screen.dart';
 import '../../../utils/recalculate_ratings_helper.dart';
+import '../../customer/screens/saved_reels_screen.dart';
 
 class VendorProfileViewScreen extends ConsumerStatefulWidget {
   const VendorProfileViewScreen({super.key});
@@ -83,6 +84,8 @@ class _VendorProfileViewScreenState
                         const SizedBox(height: 24),
                         _buildReviews(technician.id),
                         const SizedBox(height: 24),
+                        _buildSavedReelsButton(context),
+                        const SizedBox(height: 24),
                         _buildPolicyLinks(context),
                         const SizedBox(height: 24),
                         _buildLogoutButton(context),
@@ -111,21 +114,21 @@ class _VendorProfileViewScreenState
       elevation: 0,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
-      leading: IconButton(
-        icon: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(
-            Icons.arrow_back_rounded,
-            color: AppTheme.primaryColor,
-            size: 20,
-          ),
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
+      // leading: IconButton(
+      //   icon: Container(
+      //     padding: const EdgeInsets.all(8),
+      //     decoration: BoxDecoration(
+      //       color: AppTheme.primaryColor.withValues(alpha: 0.1),
+      //       borderRadius: BorderRadius.circular(10),
+      //     ),
+      //     child: const Icon(
+      //       Icons.arrow_back_rounded,
+      //       color: AppTheme.primaryColor,
+      //       size: 20,
+      //     ),
+      //   ),
+      //   onPressed: () => Navigator.pop(context),
+      // ),
       title: const Text(
         'My Profile',
         style: TextStyle(
@@ -483,7 +486,9 @@ class _VendorProfileViewScreenState
                       Icon(
                         Icons.rate_review_outlined,
                         size: 48,
-                        color: AppTheme.textSecondaryColor.withValues(alpha: 0.5),
+                        color: AppTheme.textSecondaryColor.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       const Text(
@@ -512,6 +517,94 @@ class _VendorProfileViewScreenState
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSavedReelsButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SavedReelsScreen()),
+            );
+          },
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF8B5CF6),
+                  const Color(0xFF8B5CF6).withValues(alpha: 0.8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.bookmark_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Saved Reels',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Watch your saved reels',
+                        style: TextStyle(fontSize: 14, color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -650,7 +743,9 @@ class _VendorProfileViewScreenState
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-              border: Border.all(color: AppTheme.errorColor.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: AppTheme.errorColor.withValues(alpha: 0.3),
+              ),
               boxShadow: AppTheme.shadowSm,
             ),
             child: Row(
