@@ -134,61 +134,13 @@ exports.reelRedirect = onRequest(async (req, res) => {
         if (snapshot.empty) {
             console.log('Reel not found for shortId:', shortId);
             
-            // Debug: Get all reels to see what shortIds exist
-            const allReels = await admin.firestore()
-                .collection('reels')
-                .limit(5)
-                .get();
-            
-            const debugInfo = allReels.docs.map(doc => ({
-                id: doc.id,
-                shortId: doc.data().shortId,
-                videoUrl: doc.data().videoUrl
-            }));
-            
             return res.status(404).send(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Reel Not Found</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 50px; }
-                        h1 { color: #667eea; }
-                        .debug { background: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px; }
-                        pre { overflow-x: auto; }
-                    </style>
-                </head>
-                <body>
-                    <h1>Reel Not Found</h1>
-                    <p>Looking for shortId: <strong>${shortId}</strong></p>
-                    <div class="debug">
-                        <h3>Debug Info - Sample Reels:</h3>
-                        <pre>${JSON.stringify(debugInfo, null, 2)}</pre>
-                    </div>
-                    <p>If you see reels above without shortId, run the migration:</p>
-                    <a href="https://us-central1-skill-connect-9d6b3.cloudfunctions.net/migrateReels">Run Migration</a>
-                </body>
-                </html>
-            `);
-        }
-
-        const reel = snapshot.docs[0].data();
-        const videoUrl = reel.videoUrl;
-
-        // Check if request is from a browser (has User-Agent with Mozilla)
-        const userAgent = req.headers['user-agent'] || '';
-        const isBrowser = userAgent.includes('Mozilla') && !userAgent.includes('SkillConnect');
-
-        if (isBrowser) {
-            // Serve HTML page with app link and install prompt
-            console.log('Serving HTML page for browser request');
-            return res.send(`
                 <!DOCTYPE html>
                 <html lang="en">
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>SkillConnect - Open in App</title>
+                    <title>SkillConnect - Reel Not Found</title>
                     <style>
                         * { margin: 0; padding: 0; box-sizing: border-box; }
                         body {
@@ -223,7 +175,114 @@ exports.reelRedirect = onRequest(async (req, res) => {
                             font-weight: bold;
                         }
                         h1 { font-size: 24px; color: #333; margin-bottom: 10px; }
-                        p { color: #666; margin-bottom: 30px; line-height: 1.6; }
+                        p { color: #666; margin-bottom: 20px; line-height: 1.6; }
+                        .btn {
+                            display: block;
+                            width: 100%;
+                            padding: 16px;
+                            border: none;
+                            border-radius: 12px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            text-decoration: none;
+                            transition: transform 0.2s;
+                            margin-bottom: 12px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                        }
+                        .btn:active { transform: scale(0.98); }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="logo">SC</div>
+                        <h1>Reel Not Found</h1>
+                        <p>This reel may have been removed or is no longer available.</p>
+                        <a href="https://play.google.com/store/apps/details?id=com.example.skillconnect" class="btn">
+                            Get SkillConnect App
+                        </a>
+                    </div>
+                </body>
+                </html>
+            `);
+        }
+
+        const reel = snapshot.docs[0].data();
+        const videoUrl = reel.videoUrl;
+        const packageName = 'com.example.skillconnect';
+        const playStoreUrl = 'https://play.google.com/store/apps/details?id=' + packageName;
+        const appDeepLink = 'https://skill-connect-9d6b3.web.app/reels/' + shortId;
+
+        // Build Android intent:// URI
+        // This opens the app if installed, or falls back to Play Store
+        const intentUrl = 'intent://reels/' + shortId
+            + '#Intent'
+            + ';scheme=https'
+            + ';host=skill-connect-9d6b3.web.app'
+            + ';package=' + packageName
+            + ';S.browser_fallback_url=' + encodeURIComponent(playStoreUrl)
+            + ';end';
+
+        // Check if request is from a browser
+        const userAgent = req.headers['user-agent'] || '';
+        const isBrowser = userAgent.includes('Mozilla') && !userAgent.includes('SkillConnect');
+
+        if (isBrowser) {
+            console.log('Serving deep link page for browser request');
+
+            const isAndroid = userAgent.includes('Android');
+            const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+
+            return res.send(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>SkillConnect - Open in App</title>
+                    <meta name="description" content="Watch this reel on SkillConnect">
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            min-height: 100vh;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 20px;
+                        }
+                        .container {
+                            background: white;
+                            border-radius: 20px;
+                            padding: 40px 30px;
+                            max-width: 400px;
+                            width: 100%;
+                            text-align: center;
+                            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                            animation: slideUp 0.4s ease-out;
+                        }
+                        @keyframes slideUp {
+                            from { opacity: 0; transform: translateY(20px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .logo {
+                            width: 80px;
+                            height: 80px;
+                            margin: 0 auto 20px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            border-radius: 20px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 40px;
+                            color: white;
+                            font-weight: bold;
+                        }
+                        h1 { font-size: 24px; color: #333; margin-bottom: 10px; }
+                        p { color: #666; margin-bottom: 20px; line-height: 1.6; }
                         .btn {
                             display: block;
                             width: 100%;
@@ -258,6 +317,11 @@ exports.reelRedirect = onRequest(async (req, res) => {
                             0% { transform: rotate(0deg); }
                             100% { transform: rotate(360deg); }
                         }
+                        .status-text {
+                            font-size: 14px;
+                            color: #999;
+                            margin-top: 8px;
+                        }
                     </style>
                 </head>
                 <body>
@@ -268,47 +332,70 @@ exports.reelRedirect = onRequest(async (req, res) => {
                         
                         <div class="loading" id="loading">
                             <div class="spinner"></div>
-                            <p style="margin-top: 10px; color: #666;">Opening app...</p>
+                            <p class="status-text">Opening app...</p>
                         </div>
                         
-                        <button class="btn btn-primary" id="openAppBtn" onclick="openApp()">
+                        <a href="${intentUrl}" class="btn btn-primary" id="openAppBtn">
                             Open in App
-                        </button>
+                        </a>
                         
                         <div id="installSection" style="display: none;">
-                            <p style="margin: 20px 0;">Don't have the app?</p>
-                            <a href="https://play.google.com/store/apps/details?id=com.example.skillconnect" class="btn btn-secondary" target="_blank">
+                            <p style="margin: 10px 0;">Don't have the app yet?</p>
+                            <a href="${playStoreUrl}" class="btn btn-secondary" target="_blank">
                                 Download from Play Store
                             </a>
                         </div>
                     </div>
                     
                     <script>
-                        const appUrl = 'https://skill-connect-9d6b3.web.app/reels/${shortId}';
+                        var isAndroid = ${isAndroid};
+                        var isIOS = ${isIOS};
+                        var intentUrl = '${intentUrl}';
+                        var playStoreUrl = '${playStoreUrl}';
                         
                         function openApp() {
                             document.getElementById('loading').style.display = 'block';
                             document.getElementById('openAppBtn').style.display = 'none';
                             
-                            window.location.href = appUrl;
-                            
-                            setTimeout(() => {
+                            if (isAndroid) {
+                                // Use intent:// scheme for Android
+                                // This will open the app if installed, or redirect to Play Store
+                                window.location.href = intentUrl;
+                                
+                                // Show install section after a delay as fallback
+                                setTimeout(function() {
+                                    document.getElementById('loading').style.display = 'none';
+                                    document.getElementById('openAppBtn').style.display = 'block';
+                                    document.getElementById('installSection').style.display = 'block';
+                                }, 2500);
+                            } else if (isIOS) {
+                                // For iOS, show download prompt directly
                                 document.getElementById('loading').style.display = 'none';
+                                document.getElementById('message').textContent = 'SkillConnect is available on Android';
+                                document.getElementById('openAppBtn').style.display = 'none';
                                 document.getElementById('installSection').style.display = 'block';
-                                document.getElementById('message').textContent = 'App not installed?';
-                            }, 2000);
+                            } else {
+                                // Desktop: show download prompt
+                                document.getElementById('loading').style.display = 'none';
+                                document.getElementById('message').textContent = 'Download the SkillConnect app to view this reel';
+                                document.getElementById('openAppBtn').style.display = 'none';
+                                document.getElementById('installSection').style.display = 'block';
+                            }
                         }
                         
-                        window.addEventListener('load', () => {
-                            setTimeout(openApp, 500);
-                        });
+                        // Auto-attempt on Android devices
+                        if (isAndroid) {
+                            window.addEventListener('load', function() {
+                                setTimeout(openApp, 300);
+                            });
+                        }
                     </script>
                 </body>
                 </html>
             `);
         }
 
-        // For app requests, redirect to video URL
+        // For app requests (or non-browser clients), redirect to the video URL
         console.log('Redirecting to:', videoUrl);
         res.redirect(302, videoUrl);
     } catch (error) {
@@ -317,15 +404,16 @@ exports.reelRedirect = onRequest(async (req, res) => {
             <!DOCTYPE html>
             <html>
             <head>
-                <title>Server Error</title>
+                <title>Something went wrong</title>
                 <style>
-                    body { font-family: Arial, sans-serif; padding: 50px; }
-                    h1 { color: #f44336; }
+                    body { font-family: -apple-system, sans-serif; padding: 50px; text-align: center; }
+                    h1 { color: #667eea; }
+                    p { color: #666; margin-top: 10px; }
                 </style>
             </head>
             <body>
-                <h1>Server Error</h1>
-                <p>Error: ${error.message}</p>
+                <h1>Something went wrong</h1>
+                <p>Please try again later or open the SkillConnect app directly.</p>
             </body>
             </html>
         `);
