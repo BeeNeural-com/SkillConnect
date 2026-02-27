@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import '../models/reel_model.dart';
 import '../services/reel_service.dart';
 import 'comments_sheet.dart';
@@ -23,12 +21,13 @@ class _ReelItemState extends State<ReelItem> {
   late bool _isLiked;
   late int _likeCount;
   late int _commentCount;
-  final bool _isSharing = false;
+  bool _isSaved = false;
 
   @override
   void initState() {
     super.initState();
     _syncFromReel(widget.reel);
+    _checkSavedState();
   }
 
   @override
@@ -69,31 +68,33 @@ class _ReelItemState extends State<ReelItem> {
     );
   }
 
-  void _shareReel(String url) {
-    if (_isSharing) return;
-
-    // Generate custom share URL
-    final shortId = widget.reel.shortId ?? _extractShortId(url);
-    // Use Firebase hosting URL (change to custom domain when ready)
-    final customUrl = 'https://skill-connect-9d6b3.web.app/reels/$shortId';
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) =>
-          _ShareSheet(url: customUrl, onDismiss: () => Navigator.of(ctx).pop()),
-    );
+  Future<void> _checkSavedState() async {
+    final saved = await _reelService.isReelSaved(widget.reel.id);
+    if (mounted) {
+      setState(() => _isSaved = saved);
+    }
   }
 
-  /// Extract short ID from GCS URL
-  String _extractShortId(String gcsUrl) {
-    try {
-      final uri = Uri.parse(gcsUrl);
-      final filename = uri.pathSegments.last;
-      final uuid = filename.replaceAll('.mp4', '').replaceAll('.mov', '');
-      return uuid.split('-').first;
-    } catch (e) {
-      return 'reel';
+  Future<void> _toggleSave() async {
+    final userId = _reelService.currentUserId;
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please sign in to save reels')),
+      );
+      return;
+    }
+    setState(() => _isSaved = !_isSaved);
+    await _reelService.toggleSaveReel(
+      reelId: widget.reel.id,
+      isSaved: _isSaved,
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isSaved ? 'Reel saved' : 'Reel unsaved'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
     }
   }
 
@@ -269,126 +270,19 @@ class _ReelItemState extends State<ReelItem> {
               ),
               const SizedBox(height: 18),
               ReelActionButton(
-                label: 'Share',
+                label: 'Save',
                 count: 0,
-                icon: Icons.send_rounded,
-                onTap: () => _shareReel(reel.videoUrl),
+                isActive: _isSaved,
+                icon: _isSaved
+                    ? Icons.bookmark_rounded
+                    : Icons.bookmark_border_rounded,
+                activeColor: Colors.white,
+                onTap: _toggleSave,
               ),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-// ── Clean share bottom sheet ──
-class _ShareSheet extends StatelessWidget {
-  final String url;
-  final VoidCallback onDismiss;
-
-  const _ShareSheet({required this.url, required this.onDismiss});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Share Reel',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _ShareOption(
-                  icon: Icons.copy_rounded,
-                  label: 'Copy Link',
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: url));
-                    onDismiss();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Link copied'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                ),
-                _ShareOption(
-                  icon: Icons.share_rounded,
-                  label: 'More',
-                  onTap: () async {
-                    onDismiss();
-                    await Share.share(url);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ShareOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _ShareOption({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 24, color: Colors.black87),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
