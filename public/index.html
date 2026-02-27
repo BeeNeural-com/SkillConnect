@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillConnect - Open in App</title>
+    <meta name="description" content="View this content in the SkillConnect app">
     <style>
         * {
             margin: 0;
@@ -29,6 +30,12 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .logo {
@@ -53,7 +60,7 @@
         
         p {
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             line-height: 1.6;
         }
         
@@ -105,15 +112,11 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .store-badge {
-            display: inline-block;
-            margin: 10px 5px;
-        }
-        
-        .store-badge img {
-            height: 50px;
-            width: auto;
+
+        .status-text {
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -125,44 +128,82 @@
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="margin-top: 10px; color: #666;">Opening app...</p>
+            <p class="status-text">Opening app...</p>
         </div>
         
-        <button class="btn btn-primary" id="openAppBtn" onclick="openApp()">
+        <a class="btn btn-primary" id="openAppBtn" href="#" onclick="openApp(); return false;">
             Open in App
-        </button>
+        </a>
         
         <div id="installSection" style="display: none;">
-            <p style="margin: 20px 0;">Don't have the app?</p>
-            <a href="https://play.google.com/store" class="btn btn-secondary" target="_blank">
+            <p style="margin: 10px 0;">Don't have the app yet?</p>
+            <a href="https://play.google.com/store/apps/details?id=com.example.skillconnect" class="btn btn-secondary" target="_blank">
                 Download from Play Store
             </a>
         </div>
     </div>
     
     <script>
-        const reelId = window.location.pathname.split('/').pop();
-        const appUrl = `https://skill-connect-9d6b3.web.app${window.location.pathname}`;
+        // Extract reel ID from URL path
+        var pathParts = window.location.pathname.split('/').filter(function(p) { return p; });
+        var reelId = pathParts.length > 0 ? pathParts[pathParts.length - 1] : '';
+        var packageName = 'com.example.skillconnect';
+        var playStoreUrl = 'https://play.google.com/store/apps/details?id=' + packageName;
+        
+        // Build Android intent:// URI
+        var intentUrl = 'intent:/' + window.location.pathname
+            + '#Intent'
+            + ';scheme=https'
+            + ';host=skill-connect-9d6b3.web.app'
+            + ';package=' + packageName
+            + ';S.browser_fallback_url=' + encodeURIComponent(playStoreUrl)
+            + ';end';
+
+        // Set the "Open in App" button href to the intent URL
+        var openAppBtn = document.getElementById('openAppBtn');
+        if (openAppBtn) {
+            openAppBtn.href = intentUrl;
+        }
+
+        // Detect platform
+        var ua = navigator.userAgent || '';
+        var isAndroid = /Android/i.test(ua);
+        var isIOS = /iPhone|iPad|iPod/i.test(ua);
         
         function openApp() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('openAppBtn').style.display = 'none';
             
-            // Try to open the app
-            window.location.href = appUrl;
-            
-            // If app doesn't open in 2 seconds, show install option
-            setTimeout(() => {
+            if (isAndroid) {
+                // Use intent:// scheme for Android
+                // Opens the app if installed, otherwise redirects to Play Store
+                window.location.href = intentUrl;
+                
+                // Show install section after delay as fallback
+                setTimeout(function() {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('openAppBtn').style.display = 'block';
+                    document.getElementById('installSection').style.display = 'block';
+                }, 2500);
+            } else if (isIOS) {
+                // iOS — show download prompt
                 document.getElementById('loading').style.display = 'none';
+                document.getElementById('message').textContent = 'SkillConnect is available on Android';
                 document.getElementById('installSection').style.display = 'block';
-                document.getElementById('message').textContent = 'App not installed?';
-            }, 2000);
+            } else {
+                // Desktop — show download prompt
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('message').textContent = 'Download the SkillConnect app to view this reel';
+                document.getElementById('installSection').style.display = 'block';
+            }
         }
         
-        // Auto-attempt to open app on page load
-        window.addEventListener('load', () => {
-            setTimeout(openApp, 500);
-        });
+        // Auto-attempt to open app on Android devices
+        if (isAndroid) {
+            window.addEventListener('load', function() {
+                setTimeout(openApp, 300);
+            });
+        }
     </script>
 </body>
 </html>
