@@ -8,6 +8,7 @@ import '../../auth/screens/google_signin_screen.dart';
 import '../../shared/screens/terms_of_service_screen.dart';
 import '../../shared/screens/privacy_policy_screen.dart';
 import 'booking_history_screen.dart';
+import 'saved_reels_screen.dart';
 
 class CustomerProfileScreen extends ConsumerWidget {
   const CustomerProfileScreen({super.key});
@@ -211,6 +212,20 @@ class CustomerProfileScreen extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const BookingHistoryScreen()),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildEnhancedMenuItem(
+            context,
+            icon: Icons.bookmark_rounded,
+            title: 'Saved Reels',
+            subtitle: 'Watch your saved reels',
+            color: const Color(0xFF8B5CF6),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SavedReelsScreen()),
               );
             },
           ),
