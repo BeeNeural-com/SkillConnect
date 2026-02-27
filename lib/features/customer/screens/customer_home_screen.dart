@@ -10,12 +10,14 @@ import '../../../providers/notification_provider.dart';
 import '../../../models/booking_model.dart';
 import '../../shared/widgets/loading_widget.dart';
 import '../../auth/screens/google_signin_screen.dart';
+import '../../../widgets/split_fab.dart';
 import 'service_request_screen.dart';
 import 'booking_detail_screen.dart';
 import 'booking_history_screen.dart';
 import 'customer_profile_screen.dart';
 import '../../shared/screens/notifications_screen.dart';
 import 'chatbot_screen.dart';
+import 'reels_screen.dart';
 
 class CustomerHomeScreen extends ConsumerStatefulWidget {
   const CustomerHomeScreen({super.key});
@@ -100,23 +102,19 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
+      floatingActionButton: SplitFAB(
+        onLeftTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ChatbotScreen()),
           );
         },
-        backgroundColor: AppTheme.primaryColor,
-        icon: const Icon(Icons.smart_toy_rounded, color: Colors.white),
-        label: Text(
-          'AI Assistant',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 4,
+        onRightTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ReelsScreen()),
+          );
+        },
       ),
       body: userAsync.when(
         data: (user) {
@@ -558,7 +556,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                childAspectRatio: 0.95,
+                childAspectRatio: 0.85, // Adjusted for better proportions
               ),
               itemCount: filteredServices.length,
               itemBuilder: (context, index) {
@@ -586,133 +584,177 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
     required Color color,
     String? imagePath,
   }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-      elevation: 0,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ServiceRequestScreen(serviceCategory: title),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-            border: Border.all(color: AppTheme.dividerColor, width: 1),
-            boxShadow: AppTheme.shadowSm,
-          ),
-          child: Stack(
-            children: [
-              // Background decoration
-              Positioned(
-                top: -20,
-                right: -20,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: color.withValues(alpha: 0.08),
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate responsive dimensions based on card width
+        final cardWidth = constraints.maxWidth;
+        final iconSize = (cardWidth * 0.35).clamp(48.0, 64.0);
+        final titleFontSize = (cardWidth * 0.09).clamp(14.0, 17.0);
+        final descriptionFontSize = (cardWidth * 0.07).clamp(11.0, 13.0);
+        final actionFontSize = (cardWidth * 0.065).clamp(10.0, 12.0);
+        final padding = (cardWidth * 0.08).clamp(12.0, 16.0);
+
+        return Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          elevation: 0,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ServiceRequestScreen(serviceCategory: title),
                 ),
+              );
+            },
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                border: Border.all(color: AppTheme.dividerColor, width: 1),
+                boxShadow: AppTheme.shadowSm,
               ),
-              // Content
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Icon or Image
-                    if (imagePath != null)
-                      Container(
-                        width: 64,
-                        height: 64,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Image.asset(
-                          imagePath,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(icon, size: 36, color: color);
-                          },
-                        ),
-                      )
-                    else
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [color, color.withValues(alpha: 0.7)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: color.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Icon(icon, size: 32, color: Colors.white),
-                      ),
-                    const Spacer(),
-                    // Title
-                    Text(
-                      AppConstants.getCategoryDisplayName(title),
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimaryColor,
+              child: Stack(
+                children: [
+                  // Background decoration
+                  Positioned(
+                    top: -20,
+                    right: -20,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: color.withValues(alpha: 0.08),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    // Description
-                    Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Action indicator
-                    Row(
+                  ),
+                  // Content with flexible layout
+                  Padding(
+                    padding: EdgeInsets.all(padding),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Book Now',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: color,
-                            fontWeight: FontWeight.w600,
+                        // Icon or Image - flexible sizing
+                        Flexible(
+                          flex: 3,
+                          child: imagePath != null
+                              ? Container(
+                                  width: iconSize,
+                                  height: iconSize,
+                                  padding: EdgeInsets.all(padding * 0.5),
+                                  decoration: BoxDecoration(
+                                    color: color.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Image.asset(
+                                    imagePath,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        icon,
+                                        size: iconSize * 0.6,
+                                        color: color,
+                                      );
+                                    },
+                                  ),
+                                )
+                              : Container(
+                                  width: iconSize,
+                                  height: iconSize,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        color,
+                                        color.withValues(alpha: 0.7),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: color.withValues(alpha: 0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    icon,
+                                    size: iconSize * 0.5,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                        const Spacer(),
+                        // Title with overflow handling
+                        Flexible(
+                          flex: 2,
+                          child: Text(
+                            AppConstants.getCategoryDisplayName(title),
+                            style: TextStyle(
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimaryColor,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 14,
-                          color: color,
+                        SizedBox(height: padding * 0.25),
+                        // Description with overflow handling
+                        Flexible(
+                          flex: 1,
+                          child: Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: descriptionFontSize,
+                              color: AppTheme.textSecondaryColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(height: padding * 0.5),
+                        // Action indicator with flexible sizing
+                        Flexible(
+                          flex: 1,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Book Now',
+                                  style: TextStyle(
+                                    fontSize: actionFontSize,
+                                    color: color,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(width: padding * 0.25),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: actionFontSize + 2,
+                                  color: color,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -727,16 +769,24 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.history_rounded,
-                    color: AppTheme.primaryColor,
-                    size: 24,
-                  ),
-                  SizedBox(width: 8),
-                  Text('Recent Bookings', style: AppTheme.h3),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.history_rounded,
+                      color: AppTheme.primaryColor,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Recent Bookings',
+                        style: AppTheme.h3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {
