@@ -4,6 +4,8 @@ import '../../../providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../main.dart';
+import '../../../widgets/skills_selection_widget.dart';
+import '../../../constants/electrical_subcategories.dart';
 
 class CompleteProfileScreen extends ConsumerStatefulWidget {
   final String role;
@@ -22,6 +24,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   final _descriptionController = TextEditingController();
 
   final List<String> _selectedSkills = [];
+  final List<String> _selectedSubSkills = [];
   bool _isLoading = false;
 
   @override
@@ -76,6 +79,9 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             ? _experienceController.text.trim()
             : null,
         skills: widget.role == AppConstants.roleVendor ? _selectedSkills : null,
+        subSkills: widget.role == AppConstants.roleVendor
+            ? _selectedSubSkills
+            : null,
         description: widget.role == AppConstants.roleVendor
             ? _descriptionController.text.trim()
             : null,
@@ -310,79 +316,33 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: AppConstants.serviceCategories.map((category) {
-            final isSelected = _selectedSkills.contains(category.id);
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (isSelected) {
-                    _selectedSkills.remove(category.id);
-                  } else {
-                    _selectedSkills.add(category.id);
-                  }
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  gradient: isSelected ? AppTheme.secondaryGradient : null,
-                  color: isSelected ? null : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected
-                        ? Colors.transparent
-                        : AppTheme.dividerColor,
-                    width: 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.secondaryColor.withValues(
-                              alpha: 0.3,
-                            ),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                      : AppTheme.shadowSm,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(category.icon, style: const TextStyle(fontSize: 18)),
-                    const SizedBox(width: 8),
-                    Text(
-                      category.name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? Colors.white
-                            : AppTheme.textPrimaryColor,
-                      ),
-                    ),
-                    if (isSelected) ...[
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.check_circle_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+        SkillsSelectionWidget(
+          initialSelectedSkills: _selectedSkills,
+          onSkillsChanged: _handleSkillsChanged,
         ),
       ],
     );
+  }
+
+  void _handleSkillsChanged(List<String> combinedSkills) {
+    setState(() {
+      // Separate main skills and sub-skills
+      _selectedSkills.clear();
+      _selectedSubSkills.clear();
+
+      for (final skill in combinedSkills) {
+        // Check if this is a sub-skill
+        final isSubSkill = electricalSubCategories.any(
+          (sub) => sub.id == skill,
+        );
+
+        if (isSubSkill) {
+          _selectedSubSkills.add(skill);
+        } else {
+          _selectedSkills.add(skill);
+        }
+      }
+    });
   }
 
   Widget _buildDescriptionSection() {

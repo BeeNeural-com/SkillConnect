@@ -19,6 +19,7 @@ class TechnicianListScreen extends ConsumerStatefulWidget {
   final double longitude;
   final List<String> imageUrls;
   final DateTime scheduledDate;
+  final List<String>? selectedSubSkills; // Optional sub-skills for filtering
 
   const TechnicianListScreen({
     super.key,
@@ -29,6 +30,7 @@ class TechnicianListScreen extends ConsumerStatefulWidget {
     required this.longitude,
     required this.imageUrls,
     required this.scheduledDate,
+    this.selectedSubSkills,
   });
 
   @override
@@ -302,7 +304,9 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: AppTheme.primaryColor,
-                    inactiveTrackColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+                    inactiveTrackColor: AppTheme.primaryColor.withValues(
+                      alpha: 0.2,
+                    ),
                     thumbColor: AppTheme.primaryColor,
                     overlayColor: AppTheme.primaryColor.withValues(alpha: 0.2),
                   ),
@@ -578,12 +582,29 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
           final skills = (data['skills'] as List?)?.cast<String>() ?? [];
 
           // Check if any skill matches the service category (case-insensitive)
-          return skills.any(
+          final hasMatchingSkill = skills.any(
             (skill) =>
                 skill.toLowerCase() == categoryLower ||
                 skill.toLowerCase().contains(categoryLower) ||
                 categoryLower.contains(skill.toLowerCase()),
           );
+
+          // If no matching skill, skip this technician
+          if (!hasMatchingSkill) return false;
+
+          // If sub-skills are specified (for electrical), filter by them
+          if (widget.selectedSubSkills != null &&
+              widget.selectedSubSkills!.isNotEmpty) {
+            final techSubSkills =
+                (data['subSkills'] as List?)?.cast<String>() ?? [];
+
+            // Technician must have at least one of the selected sub-skills
+            return widget.selectedSubSkills!.any(
+              (selectedSubSkill) => techSubSkills.contains(selectedSubSkill),
+            );
+          }
+
+          return true;
         }).toList();
 
         if (matchingTechnicians.isEmpty) {
@@ -591,7 +612,11 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
             child: _buildEmptyState(
               icon: Icons.person_search_rounded,
               title: 'No Technicians Found',
-              message: 'No technicians available for this service',
+              message:
+                  widget.selectedSubSkills != null &&
+                      widget.selectedSubSkills!.isNotEmpty
+                  ? 'No technicians available with the selected specializations'
+                  : 'No technicians available for this service',
             ),
           );
         }
@@ -682,7 +707,9 @@ class _TechnicianListScreenState extends ConsumerState<TechnicianListScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.warningColor.withValues(alpha: 0.1),
+                                  color: AppTheme.warningColor.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Row(

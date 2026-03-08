@@ -13,8 +13,13 @@ import 'technician_list_screen.dart';
 
 class ServiceRequestScreen extends ConsumerStatefulWidget {
   final String serviceCategory;
+  final List<String>? selectedSubSkills; // Optional sub-skills for electrical
 
-  const ServiceRequestScreen({super.key, required this.serviceCategory});
+  const ServiceRequestScreen({
+    super.key,
+    required this.serviceCategory,
+    this.selectedSubSkills,
+  });
 
   @override
   ConsumerState<ServiceRequestScreen> createState() =>
@@ -336,6 +341,8 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
               longitude: _longitude!,
               imageUrls: imageUrls,
               scheduledDate: _getScheduledDateTime(),
+              selectedSubSkills:
+                  widget.selectedSubSkills, // Pass sub-skills for filtering
             ),
           ),
         );
@@ -427,7 +434,10 @@ class _ServiceRequestScreenState extends ConsumerState<ServiceRequestScreen> {
         background: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppTheme.primaryColor.withValues(alpha: 0.1), Colors.white],
+              colors: [
+                AppTheme.primaryColor.withValues(alpha: 0.1),
+                Colors.white,
+              ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),

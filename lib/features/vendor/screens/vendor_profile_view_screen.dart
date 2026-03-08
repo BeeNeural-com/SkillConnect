@@ -13,6 +13,7 @@ import '../../shared/screens/terms_of_service_screen.dart';
 import '../../shared/screens/privacy_policy_screen.dart';
 import '../../../utils/recalculate_ratings_helper.dart';
 import '../../customer/screens/saved_reels_screen.dart';
+import '../../../constants/electrical_subcategories.dart';
 
 class VendorProfileViewScreen extends ConsumerStatefulWidget {
   const VendorProfileViewScreen({super.key});
@@ -75,7 +76,7 @@ class _VendorProfileViewScreenState
                           technician.isAvailable,
                         ),
                         const SizedBox(height: 24),
-                        _buildSkills(technician.skills),
+                        _buildSkills(technician.skills, technician.subSkills),
                         const SizedBox(height: 24),
                         _buildExperience(
                           technician.description,
@@ -302,7 +303,12 @@ class _VendorProfileViewScreenState
     );
   }
 
-  Widget _buildSkills(List<String> skills) {
+  Widget _buildSkills(List<String> skills, List<String> subSkills) {
+    // Check if "electrical" is in the skills list
+    final hasElectrical = skills.any(
+      (skill) => skill.toLowerCase() == 'electrical',
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -360,6 +366,89 @@ class _VendorProfileViewScreenState
               );
             }).toList(),
           ),
+          // Display sub-skills if electrical is selected and sub-skills exist
+          if (hasElectrical && subSkills.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.bolt_rounded,
+                        size: 18,
+                        color: AppTheme.primaryColor,
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Electrical Specializations',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: subSkills.map((subSkillId) {
+                      // Find the sub-category by ID
+                      final subCategory = electricalSubCategories.firstWhere(
+                        (cat) => cat.id == subSkillId,
+                        orElse: () => electricalSubCategories.first,
+                      );
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSm,
+                          ),
+                          border: Border.all(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              subCategory.icon,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              subCategory.name,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.textPrimaryColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

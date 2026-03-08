@@ -6,6 +6,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/technician_provider.dart';
 import '../../../models/technician_model.dart';
+import '../../../widgets/skills_selection_widget.dart';
 
 class VendorRegistrationScreen extends ConsumerStatefulWidget {
   const VendorRegistrationScreen({super.key});
@@ -23,14 +24,94 @@ class _VendorRegistrationScreenState
   final _experienceController = TextEditingController();
 
   // String _selectedRole = AppConstants.roleCustomer;
-  final List<String> _selectedSkills = [];
+  List<String> _selectedSkills = [];
+  List<String> _selectedSubSkills = [];
   bool _isAvailable = true;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return;
+
+      final userData = await ref
+          .read(authServiceProvider)
+          .getUserData(user.uid);
+      if (userData != null) {
+        setState(() {
+          // Load sub-skills from user document
+          _selectedSubSkills = List.from(userData.subSkills);
+          // Initialize selected skills (will be combined with sub-skills in widget)
+          _selectedSkills = [];
+          _isLoading = false;
+        });
+
+        // Load technician data if exists
+        final technicianQuery = await FirebaseFirestore.instance
+            .collection(AppConstants.techniciansCollection)
+            .where('userId', isEqualTo: user.uid)
+            .limit(1)
+            .get();
+
+        if (technicianQuery.docs.isNotEmpty) {
+          final technicianData = TechnicianModel.fromFirestore(
+            technicianQuery.docs.first,
+          );
+          setState(() {
+            _descriptionController.text = technicianData.description;
+            _experienceController.text = technicianData.experience;
+            _isAvailable = technicianData.isAvailable;
+            // Load skills from technician document
+            _selectedSkills = List.from(technicianData.skills);
+          });
+        }
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
+      }
+    }
+  }
 
   @override
   void dispose() {
     _descriptionController.dispose();
     _experienceController.dispose();
     super.dispose();
+  }
+
+  void _onSkillsChanged(List<String> combinedSkills) {
+    setState(() {
+      // Parse combined list to separate main skills and sub-skills
+      final electricalSubSkillIds = {
+        'electrical_wiring',
+        'electrical_appliance_repair',
+        'solar_installation',
+      };
+
+      _selectedSkills = combinedSkills
+          .where((skill) => !electricalSubSkillIds.contains(skill))
+          .toList();
+
+      _selectedSubSkills = combinedSkills
+          .where((skill) => electricalSubSkillIds.contains(skill))
+          .toList();
+    });
   }
 
   Future<void> _submitProfile() async {
@@ -63,23 +144,53 @@ class _VendorRegistrationScreenState
       final user = ref.read(authServiceProvider).currentUser;
       if (user == null) return;
 
-      final technician = TechnicianModel(
-        id: '',
-        userId: user.uid,
-        skills: _selectedSkills,
-        description: _descriptionController.text.trim(),
-        experience: _experienceController.text.trim(),
-        rating: 0.0,
-        totalReviews: 0,
-        isAvailable: _isAvailable,
-        certifications: [],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+      // Update user document with skills and sub-skills
+      await ref.read(authServiceProvider).updateUserData(user.uid, {
+        'skills': _selectedSkills,
+        'subSkills': _selectedSubSkills,
+      });
 
-      await FirebaseFirestore.instance
+      // Check if technician profile exists
+      final technicianQuery = await FirebaseFirestore.instance
           .collection(AppConstants.techniciansCollection)
-          .add(technician.toMap());
+          .where('userId', isEqualTo: user.uid)
+          .limit(1)
+          .get();
+
+      if (technicianQuery.docs.isNotEmpty) {
+        // Update existing technician profile
+        await FirebaseFirestore.instance
+            .collection(AppConstants.techniciansCollection)
+            .doc(technicianQuery.docs.first.id)
+            .update({
+              'skills': _selectedSkills,
+              'subSkills': _selectedSubSkills,
+              'description': _descriptionController.text.trim(),
+              'experience': _experienceController.text.trim(),
+              'isAvailable': _isAvailable,
+              'updatedAt': Timestamp.now(),
+            });
+      } else {
+        // Create new technician profile
+        final technician = TechnicianModel(
+          id: '',
+          userId: user.uid,
+          skills: _selectedSkills,
+          subSkills: _selectedSubSkills,
+          description: _descriptionController.text.trim(),
+          experience: _experienceController.text.trim(),
+          rating: 0.0,
+          totalReviews: 0,
+          isAvailable: _isAvailable,
+          certifications: [],
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        await FirebaseFirestore.instance
+            .collection(AppConstants.techniciansCollection)
+            .add(technician.toMap());
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -88,7 +199,7 @@ class _VendorRegistrationScreenState
               children: [
                 Icon(Icons.check_circle, color: Colors.white),
                 SizedBox(width: 12),
-                Text('Profile created successfully!'),
+                Text('Profile updated successfully!'),
               ],
             ),
             backgroundColor: AppTheme.successColor,
@@ -238,6 +349,16 @@ class _VendorRegistrationScreenState
   }
 
   Widget _buildSkillsSection() {
+    // Show loading indicator while profile data is being loaded
+    if (_isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -249,74 +370,9 @@ class _VendorRegistrationScreenState
           ],
         ),
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: AppConstants.serviceCategories.map((category) {
-            final isSelected = _selectedSkills.contains(category.id);
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (isSelected) {
-                    _selectedSkills.remove(category.id);
-                  } else {
-                    _selectedSkills.add(category.id);
-                  }
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  gradient: isSelected ? AppTheme.secondaryGradient : null,
-                  color: isSelected ? null : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected
-                        ? Colors.transparent
-                        : AppTheme.dividerColor,
-                    width: 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.secondaryColor.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                      : AppTheme.shadowSm,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(category.icon, style: const TextStyle(fontSize: 18)),
-                    const SizedBox(width: 8),
-                    Text(
-                      category.name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? Colors.white
-                            : AppTheme.textPrimaryColor,
-                      ),
-                    ),
-                    if (isSelected) ...[
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.check_circle_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+        SkillsSelectionWidget(
+          initialSelectedSkills: [..._selectedSkills, ..._selectedSubSkills],
+          onSkillsChanged: _onSkillsChanged,
         ),
       ],
     );
