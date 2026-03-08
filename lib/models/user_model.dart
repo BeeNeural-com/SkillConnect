@@ -7,6 +7,7 @@ class UserModel {
   final String phone;
   final String role; // 'customer' or 'vendor'
   final String? profileImageUrl;
+  final List<String> subSkills;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -17,6 +18,7 @@ class UserModel {
     required this.phone,
     required this.role,
     this.profileImageUrl,
+    this.subSkills = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -31,6 +33,7 @@ class UserModel {
       phone: data['phone'] ?? '',
       role: data['role'] ?? 'customer',
       profileImageUrl: data['profileImageUrl'],
+      subSkills: List<String>.from(data['subSkills'] ?? []),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
     );
@@ -44,6 +47,7 @@ class UserModel {
       'phone': phone,
       'role': role,
       'profileImageUrl': profileImageUrl,
+      'subSkills': subSkills,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -57,6 +61,7 @@ class UserModel {
     String? phone,
     String? role,
     String? profileImageUrl,
+    List<String>? subSkills,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -67,6 +72,7 @@ class UserModel {
       phone: phone ?? this.phone,
       role: role ?? this.role,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      subSkills: subSkills ?? this.subSkills,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -4,6 +4,7 @@ class TechnicianModel {
   final String id;
   final String userId;
   final List<String> skills;
+  final List<String> subSkills;
   final String experience;
   final String description;
   final double rating;
@@ -20,6 +21,7 @@ class TechnicianModel {
     required this.id,
     required this.userId,
     required this.skills,
+    this.subSkills = const [],
     required this.experience,
     required this.description,
     required this.rating,
@@ -40,6 +42,7 @@ class TechnicianModel {
       id: doc.id,
       userId: data['userId'] ?? '',
       skills: List<String>.from(data['skills'] ?? []),
+      subSkills: List<String>.from(data['subSkills'] ?? []),
       experience: data['experience'] ?? '',
       description: data['description'] ?? '',
       rating: data['rating']?.toDouble() ?? 0.0,
@@ -59,6 +62,7 @@ class TechnicianModel {
     return {
       'userId': userId,
       'skills': skills,
+      'subSkills': subSkills,
       'experience': experience,
       'description': description,
       'rating': rating,
@@ -78,6 +82,7 @@ class TechnicianModel {
     String? id,
     String? userId,
     List<String>? skills,
+    List<String>? subSkills,
     String? experience,
     String? description,
     double? rating,
@@ -94,6 +99,7 @@ class TechnicianModel {
       id: id ?? this.id,
       userId: userId ?? this.userId,
       skills: skills ?? this.skills,
+      subSkills: subSkills ?? this.subSkills,
       experience: experience ?? this.experience,
       description: description ?? this.description,
       rating: rating ?? this.rating,

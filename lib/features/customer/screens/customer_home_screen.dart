@@ -11,6 +11,7 @@ import '../../../models/booking_model.dart';
 import '../../shared/widgets/loading_widget.dart';
 import '../../auth/screens/google_signin_screen.dart';
 import '../../../widgets/split_fab.dart';
+import '../../../widgets/electrical_subcategories_bottom_sheet.dart';
 import 'service_request_screen.dart';
 import 'booking_detail_screen.dart';
 import 'booking_history_screen.dart';
@@ -599,13 +600,42 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           elevation: 0,
           child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ServiceRequestScreen(serviceCategory: title),
-                ),
-              );
+            onTap: () async {
+              // Special handling for electrical service - show sub-categories bottom sheet
+              if (title.toLowerCase() == 'electrical') {
+                final selectedSubSkills =
+                    await showModalBottomSheet<List<String>>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) =>
+                          const ElectricalSubCategoriesBottomSheet(),
+                    );
+
+                // If user selected sub-skills, navigate to service request with them
+                if (selectedSubSkills != null &&
+                    selectedSubSkills.isNotEmpty &&
+                    mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ServiceRequestScreen(
+                        serviceCategory: title,
+                        selectedSubSkills: selectedSubSkills,
+                      ),
+                    ),
+                  );
+                }
+              } else {
+                // For other services, navigate directly
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ServiceRequestScreen(serviceCategory: title),
+                  ),
+                );
+              }
             },
             borderRadius: BorderRadius.circular(AppTheme.radiusLg),
             child: Container(

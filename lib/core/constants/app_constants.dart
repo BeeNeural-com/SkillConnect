@@ -1,3 +1,6 @@
+import '../../models/sub_category.dart';
+import '../../constants/electrical_subcategories.dart';
+
 class AppConstants {
   // App Info
   static const String appName = 'SkillConnect';
@@ -34,6 +37,7 @@ class AppConstants {
       name: 'Electrical',
       icon: '⚡',
       description: 'Wiring, repairs, and electrical installations',
+      subCategories: electricalSubCategories,
     ),
     ServiceCategory(
       id: 'carpentry',
@@ -67,7 +71,8 @@ class AppConstants {
       (cat) => cat.id.toLowerCase() == categoryId.toLowerCase(),
       orElse: () => ServiceCategory(
         id: categoryId,
-        name: categoryId.substring(0, 1).toUpperCase() + categoryId.substring(1),
+        name:
+            categoryId.substring(0, 1).toUpperCase() + categoryId.substring(1),
         icon: '🔧',
         description: '',
       ),
@@ -86,11 +91,52 @@ class ServiceCategory {
   final String name;
   final String icon;
   final String description;
+  final List<SubCategory>? subCategories;
 
   const ServiceCategory({
     required this.id,
     required this.name,
     required this.icon,
     required this.description,
+    this.subCategories,
   });
+
+  // Create ServiceCategory from Firestore JSON
+  factory ServiceCategory.fromJson(Map<String, dynamic> json) {
+    return ServiceCategory(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      icon: json['icon'] as String,
+      description: json['description'] as String,
+      subCategories: json['subCategories'] != null
+          ? (json['subCategories'] as List)
+                .map(
+                  (item) => SubCategory.fromJson(item as Map<String, dynamic>),
+                )
+                .toList()
+          : null,
+    );
+  }
+
+  // Convert ServiceCategory to Firestore JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'icon': icon,
+      'description': description,
+      if (subCategories != null)
+        'subCategories': subCategories!.map((sub) => sub.toJson()).toList(),
+    };
+  }
+
+  // Helper method to safely get subCategories (returns empty list if null)
+  List<SubCategory> getSubCategories() {
+    return subCategories ?? [];
+  }
+
+  // Helper method to check if category has subcategories
+  bool hasSubCategories() {
+    return subCategories != null && subCategories!.isNotEmpty;
+  }
 }

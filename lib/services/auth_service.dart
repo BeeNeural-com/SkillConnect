@@ -98,6 +98,50 @@ class AuthService {
     }
   }
 
+  // Validate and filter sub-skills to remove orphaned ones
+  List<String> _validateSubSkills(
+    List<String>? subSkills,
+    List<String>? selectedSkills,
+  ) {
+    if (subSkills == null || subSkills.isEmpty) {
+      return [];
+    }
+
+    if (selectedSkills == null || selectedSkills.isEmpty) {
+      return [];
+    }
+
+    // Create a set of selected skills for O(1) lookup
+    final selectedSkillsSet = selectedSkills.toSet();
+
+    // Map of sub-skill IDs to their parent skill IDs
+    final subSkillParentMap = {
+      'electrical_wiring': 'electrical',
+      'electrical_appliance_repair': 'electrical',
+      'solar_installation': 'electrical',
+    };
+
+    // Filter out orphaned sub-skills
+    final validSubSkills = subSkills.where((subSkillId) {
+      final parentSkillId = subSkillParentMap[subSkillId];
+      if (parentSkillId == null) {
+        print('Warning: Unknown sub-skill ID: $subSkillId');
+        return false;
+      }
+
+      final isValid = selectedSkillsSet.contains(parentSkillId);
+      if (!isValid) {
+        print(
+          'Warning: Orphaned sub-skill detected: $subSkillId (parent: $parentSkillId not selected)',
+        );
+      }
+
+      return isValid;
+    }).toList();
+
+    return validSubSkills;
+  }
+
   // Complete user profile after Google Sign-In
   Future<void> completeProfile({
     required String userId,
@@ -105,12 +149,18 @@ class AuthService {
     required String role,
     String? experience,
     List<String>? skills,
+    List<String>? subSkills,
     String? description,
   }) async {
     try {
+      // Validate and filter sub-skills
+      final validatedSubSkills = _validateSubSkills(subSkills, skills);
+
       final updateData = {
         'phone': phone,
         'role': role,
+        'skills': skills ?? [],
+        'subSkills': validatedSubSkills,
         'updatedAt': Timestamp.now(),
       };
 
@@ -126,6 +176,7 @@ class AuthService {
           'userId': userId,
           'experience': experience ?? '',
           'skills': skills ?? [],
+          'subSkills': validatedSubSkills,
           'description': description ?? '',
           'isAvailable': true,
           'rating': 0.0,
