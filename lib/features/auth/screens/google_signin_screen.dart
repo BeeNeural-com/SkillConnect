@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../providers/auth_provider.dart';
-import '../../../main.dart';
 
 class GoogleSignInScreen extends ConsumerStatefulWidget {
   const GoogleSignInScreen({super.key});
@@ -33,11 +32,13 @@ class _GoogleSignInScreenState extends ConsumerState<GoogleSignInScreen> {
         return;
       }
 
-      // Sign-in successful - navigate to AuthWrapper which will handle routing
+      // Sign-in successful - don't navigate manually
+      // The authStateProvider will automatically trigger navigation
+      // Just reset loading state
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const AuthWrapper()),
-        );
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
       setState(() {

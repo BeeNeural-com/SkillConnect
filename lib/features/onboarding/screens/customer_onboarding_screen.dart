@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../services/onboarding_service.dart';
-import '../../customer/screens/customer_home_screen.dart';
+import '../../../main.dart';
 
 class CustomerOnboardingScreen extends StatefulWidget {
   const CustomerOnboardingScreen({super.key});
@@ -89,9 +89,9 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
   void _finishOnboarding() async {
     await _onboardingService.completeCustomerOnboarding();
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const CustomerHomeScreen()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const AuthWrapper()));
     }
   }
 

@@ -87,8 +87,12 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             : null,
       );
 
-      // Profile completed - navigate to home
+      // Profile completed - navigate to AuthWrapper which will route to dashboard
       if (mounted) {
+        // Invalidate the provider to force refresh
+        ref.invalidate(currentUserProvider);
+
+        // Navigate to AuthWrapper
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const AuthWrapper()),
           (route) => false,

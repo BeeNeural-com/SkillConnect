@@ -11,6 +11,7 @@ import 'features/auth/screens/role_selection_screen.dart';
 import 'features/customer/screens/customer_home_screen.dart';
 import 'features/vendor/presentation/pages/vendor_shell_screen.dart';
 import 'features/onboarding/screens/app_onboarding_screen.dart';
+import 'features/onboarding/screens/customer_onboarding_screen.dart';
 import 'features/shared/screens/reel_deep_link_screen.dart';
 import 'providers/auth_provider.dart';
 import 'core/constants/app_constants.dart';
@@ -218,7 +219,7 @@ class RoleBasedHome extends ConsumerWidget {
         final role = userData.role.toLowerCase().trim();
 
         if (role == AppConstants.roleCustomer) {
-          return const CustomerHomeScreen();
+          return const CustomerOnboardingWrapper();
         } else if (role == AppConstants.roleVendor) {
           return const VendorShellScreen();
         } else {
@@ -338,5 +339,31 @@ class RoleSelectionWrapper extends StatelessWidget {
     }
 
     return role;
+  }
+}
+
+class CustomerOnboardingWrapper extends StatelessWidget {
+  const CustomerOnboardingWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: OnboardingService().isCustomerOnboardingCompleted(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: LoadingOverlay(message: 'Loading...'));
+        }
+
+        final onboardingCompleted = snapshot.data ?? false;
+
+        if (!onboardingCompleted) {
+          // Show customer onboarding
+          return const CustomerOnboardingScreen();
+        }
+
+        // Onboarding completed - show customer home
+        return const CustomerHomeScreen();
+      },
+    );
   }
 }

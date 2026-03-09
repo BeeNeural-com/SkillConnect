@@ -48,4 +48,11 @@ class OnboardingService {
     await prefs.remove(_customerOnboardingKey);
     await prefs.remove(_vendorOnboardingKey);
   }
+
+  // Reset only role-specific onboarding (for logout - keeps app onboarding)
+  Future<void> resetRoleOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_customerOnboardingKey);
+    await prefs.remove(_vendorOnboardingKey);
+  }
 }

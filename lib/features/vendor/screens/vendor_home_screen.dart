@@ -191,14 +191,14 @@ class VendorHomeScreen extends ConsumerWidget {
             .where((b) => b.status == AppConstants.statusCancelled)
             .length;
 
-        // Calculate success rate: starts at 100%, goes down with each failed work
+        // Calculate success rate
         // Total accepted work (completed + rejected + cancelled)
         final totalAcceptedWork =
             completedCount + rejectedCount + cancelledCount;
 
         final successRate = totalAcceptedWork > 0
             ? ((completedCount / totalAcceptedWork) * 100).toStringAsFixed(0)
-            : '100'; // 100% until first work is completed/failed
+            : 'N/A'; // N/A until first work is completed
 
         return userAsync.when(
           data: (user) {
@@ -746,7 +746,7 @@ class VendorHomeScreen extends ConsumerWidget {
                     ),
                     _buildPerformanceMetric(
                       'Success',
-                      '$successRate%',
+                      successRate == 'N/A' ? 'N/A' : '$successRate%',
                       Icons.trending_up_rounded,
                       AppTheme.primaryColor,
                     ),
@@ -769,10 +769,7 @@ class VendorHomeScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          _getPerformanceMessage(
-                            rating,
-                            int.parse(successRate),
-                          ),
+                          _getPerformanceMessage(rating, successRate),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -791,14 +788,24 @@ class VendorHomeScreen extends ConsumerWidget {
     );
   }
 
-  String _getPerformanceMessage(double rating, int successRate) {
-    if (rating >= 4.5 && successRate >= 90) {
+  String _getPerformanceMessage(double rating, String successRate) {
+    // Parse success rate, handle N/A case
+    final successRateInt = successRate == 'N/A'
+        ? null
+        : int.tryParse(successRate);
+
+    if (successRateInt == null) {
+      // No completed work yet
+      return 'Complete jobs to build your reputation!';
+    }
+
+    if (rating >= 4.5 && successRateInt >= 90) {
       return 'Outstanding performance! You\'re a top-rated vendor!';
-    } else if (rating >= 4.0 && successRate >= 80) {
+    } else if (rating >= 4.0 && successRateInt >= 80) {
       return 'Great job! Keep up the excellent work!';
-    } else if (rating >= 3.5 && successRate >= 70) {
+    } else if (rating >= 3.5 && successRateInt >= 70) {
       return 'Good work! There\'s room for improvement.';
-    } else if (rating > 0 || successRate > 0) {
+    } else if (rating > 0 || successRateInt > 0) {
       return 'Keep working hard to improve your ratings!';
     } else {
       return 'Complete jobs to build your reputation!';
