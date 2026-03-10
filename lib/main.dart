@@ -11,7 +11,6 @@ import 'features/auth/screens/role_selection_screen.dart';
 import 'features/customer/screens/customer_home_screen.dart';
 import 'features/vendor/presentation/pages/vendor_shell_screen.dart';
 import 'features/onboarding/screens/app_onboarding_screen.dart';
-import 'features/onboarding/screens/customer_onboarding_screen.dart';
 import 'features/shared/screens/reel_deep_link_screen.dart';
 import 'providers/auth_provider.dart';
 import 'core/constants/app_constants.dart';
@@ -219,7 +218,7 @@ class RoleBasedHome extends ConsumerWidget {
         final role = userData.role.toLowerCase().trim();
 
         if (role == AppConstants.roleCustomer) {
-          return const CustomerOnboardingWrapper();
+          return const CustomerHomeScreen();
         } else if (role == AppConstants.roleVendor) {
           return const VendorShellScreen();
         } else {
@@ -306,64 +305,45 @@ class RoleBasedHome extends ConsumerWidget {
   }
 }
 
-class RoleSelectionWrapper extends StatelessWidget {
+class RoleSelectionWrapper extends StatefulWidget {
   const RoleSelectionWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: _showRoleSelection(context),
-      builder: (context, snapshot) {
-        // This will never actually show because we navigate immediately
-        return const Scaffold(body: LoadingOverlay(message: 'Loading...'));
-      },
-    );
+  State<RoleSelectionWrapper> createState() => _RoleSelectionWrapperState();
+}
+
+class _RoleSelectionWrapperState extends State<RoleSelectionWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    // Navigate on next frame to ensure context is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showRoleSelection();
+    });
   }
 
-  Future<String?> _showRoleSelection(BuildContext context) async {
-    // Wait for the next frame to ensure context is ready
-    await Future.delayed(Duration.zero);
-
-    if (!context.mounted) return null;
+  Future<void> _showRoleSelection() async {
+    if (!mounted) return;
 
     // Show role selection screen and wait for result
     final role = await Navigator.of(context).push<String>(
       MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
     );
 
-    if (role != null && context.mounted) {
+    if (!mounted) return;
+
+    if (role != null) {
       // Navigate to complete profile screen with selected role
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => CompleteProfileScreen(role: role)),
       );
     }
-
-    return role;
+    // If role is null, user went back and was signed out by RoleSelectionScreen
+    // The navigation is already handled there, so we don't need to do anything
   }
-}
-
-class CustomerOnboardingWrapper extends StatelessWidget {
-  const CustomerOnboardingWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: OnboardingService().isCustomerOnboardingCompleted(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: LoadingOverlay(message: 'Loading...'));
-        }
-
-        final onboardingCompleted = snapshot.data ?? false;
-
-        if (!onboardingCompleted) {
-          // Show customer onboarding
-          return const CustomerOnboardingScreen();
-        }
-
-        // Onboarding completed - show customer home
-        return const CustomerHomeScreen();
-      },
-    );
+    return const Scaffold(body: LoadingOverlay(message: 'Loading...'));
   }
 }

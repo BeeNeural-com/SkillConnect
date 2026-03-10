@@ -11,6 +11,7 @@ import '../../shared/widgets/loading_widget.dart';
 import '../../../main.dart';
 import '../../shared/screens/terms_of_service_screen.dart';
 import '../../shared/screens/privacy_policy_screen.dart';
+import '../../shared/screens/account_management_screen.dart';
 import '../../../utils/recalculate_ratings_helper.dart';
 import '../../customer/screens/saved_reels_screen.dart';
 import '../../../constants/electrical_subcategories.dart';
@@ -785,105 +786,182 @@ class _VendorProfileViewScreenState
   Widget _buildLogoutButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            final shouldLogout = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Logout'),
-                content: const Text('Are you sure you want to logout?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
+      child: Column(
+        children: [
+          // Account Management Button
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AccountManagementScreen(),
                   ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.errorColor,
-                    ),
-                    child: const Text('Logout'),
-                  ),
-                ],
-              ),
-            );
-
-            if (shouldLogout == true && context.mounted) {
-              final authService = ref.read(authServiceProvider);
-              await authService.signOut();
-
-              // Reset only role-specific onboarding (keep app onboarding completed)
-              await OnboardingService().resetRoleOnboarding();
-
-              // Navigate to AuthWrapper which will handle routing
-              if (context.mounted) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const AuthWrapper()),
-                  (route) => false,
                 );
-              }
-            }
-          },
-          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
+              },
               borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-              border: Border.all(
-                color: AppTheme.errorColor.withValues(alpha: 0.3),
-              ),
-              boxShadow: AppTheme.shadowSm,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.errorColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                  border: Border.all(
+                    color: AppTheme.warningColor.withValues(alpha: 0.3),
                   ),
-                  child: const Icon(
-                    Icons.logout_rounded,
-                    color: AppTheme.errorColor,
-                    size: 24,
-                  ),
+                  boxShadow: AppTheme.shadowSm,
                 ),
-                const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Logout',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.errorColor,
-                        ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.warningColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Sign out from your account',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textSecondaryColor,
+                      child: const Icon(
+                        Icons.manage_accounts_rounded,
+                        color: AppTheme.warningColor,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Account Management',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.warningColor,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Deactivate or delete your account',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppTheme.textSecondaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 18,
+                      color: AppTheme.warningColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Logout Button
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () async {
+                final shouldLogout = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Logout'),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.errorColor,
                         ),
+                        child: const Text('Logout'),
                       ),
                     ],
                   ),
+                );
+
+                if (shouldLogout == true && context.mounted) {
+                  final authService = ref.read(authServiceProvider);
+                  await authService.signOut();
+
+                  // Reset only role-specific onboarding (keep app onboarding completed)
+                  await OnboardingService().resetRoleOnboarding();
+
+                  // Navigate to AuthWrapper which will handle routing
+                  if (context.mounted) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                      (route) => false,
+                    );
+                  }
+                }
+              },
+              borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                  border: Border.all(
+                    color: AppTheme.errorColor.withValues(alpha: 0.3),
+                  ),
+                  boxShadow: AppTheme.shadowSm,
                 ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: AppTheme.errorColor,
-                  size: 20,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.errorColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.logout_rounded,
+                        color: AppTheme.errorColor,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Logout',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.errorColor,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Sign out from your account',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppTheme.textSecondaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: AppTheme.errorColor,
+                      size: 20,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

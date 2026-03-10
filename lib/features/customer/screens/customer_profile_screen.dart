@@ -7,6 +7,7 @@ import '../../shared/widgets/loading_widget.dart';
 import '../../../main.dart';
 import '../../shared/screens/terms_of_service_screen.dart';
 import '../../shared/screens/privacy_policy_screen.dart';
+import '../../shared/screens/account_management_screen.dart';
 import 'booking_history_screen.dart';
 import 'saved_reels_screen.dart';
 
@@ -284,6 +285,22 @@ class CustomerProfileScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 24),
+          _buildEnhancedMenuItem(
+            context,
+            icon: Icons.manage_accounts_rounded,
+            title: 'Account Management',
+            subtitle: 'Deactivate or delete your account',
+            color: AppTheme.warningColor,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AccountManagementScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
           _buildEnhancedMenuItem(
             context,
             icon: Icons.logout_rounded,

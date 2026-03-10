@@ -128,39 +128,76 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(),
-                    const SizedBox(height: 32),
-                    _buildPhoneSection(),
-                    if (widget.role == AppConstants.roleVendor) ...[
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        // Show confirmation dialog
+        final shouldGoBack = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Go Back?'),
+            content: const Text(
+              'Your profile information will not be saved. Do you want to choose a different role?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Stay'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                ),
+                child: const Text(
+                  'Go Back',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldGoBack == true && context.mounted) {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        body: CustomScrollView(
+          slivers: [
+            _buildAppBar(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(),
                       const SizedBox(height: 32),
-                      _buildSkillsSection(),
+                      _buildPhoneSection(),
+                      if (widget.role == AppConstants.roleVendor) ...[
+                        const SizedBox(height: 32),
+                        _buildSkillsSection(),
+                        const SizedBox(height: 32),
+                        _buildDescriptionSection(),
+                        const SizedBox(height: 24),
+                        _buildExperienceSection(),
+                      ],
                       const SizedBox(height: 32),
-                      _buildDescriptionSection(),
-                      const SizedBox(height: 24),
-                      _buildExperienceSection(),
+                      _buildSubmitButton(),
+                      const SizedBox(height: 32),
                     ],
-                    const SizedBox(height: 32),
-                    _buildSubmitButton(),
-                    const SizedBox(height: 32),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -173,7 +210,40 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
       elevation: 0,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
-      automaticallyImplyLeading: false,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimaryColor),
+        onPressed: () async {
+          final shouldGoBack = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Go Back?'),
+              content: const Text(
+                'Your profile information will not be saved. Do you want to choose a different role?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Stay'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                  ),
+                  child: const Text(
+                    'Go Back',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          if (shouldGoBack == true && context.mounted) {
+            Navigator.pop(context);
+          }
+        },
+      ),
       title: const Text(
         'Complete Your Profile',
         style: TextStyle(

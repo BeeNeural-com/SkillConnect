@@ -243,4 +243,146 @@ class AuthService {
       rethrow;
     }
   }
+
+  // Deactivate account (soft delete - sets isActive flag to false)
+  Future<void> deactivateAccount() async {
+    try {
+      final userId = currentUserId;
+      if (userId == null) {
+        throw Exception('No user logged in');
+      }
+
+      // Update user document to mark as inactive
+      await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .update({
+            'isActive': false,
+            'deactivatedAt': Timestamp.now(),
+            'updatedAt': Timestamp.now(),
+          });
+
+      // If vendor, also deactivate technician profile
+      final userDoc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data();
+        if (userData != null && userData['role'] == AppConstants.roleVendor) {
+          final technicianQuery = await _firestore
+              .collection(AppConstants.techniciansCollection)
+              .where('userId', isEqualTo: userId)
+              .limit(1)
+              .get();
+
+          if (technicianQuery.docs.isNotEmpty) {
+            await technicianQuery.docs.first.reference.update({
+              'isActive': false,
+              'updatedAt': Timestamp.now(),
+            });
+          }
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Delete account permanently
+  Future<void> deleteAccount() async {
+    try {
+      final userId = currentUserId;
+      if (userId == null) {
+        throw Exception('No user logged in');
+      }
+
+      // Get user data to check role
+      final userDoc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data();
+
+        // If vendor, delete technician profile and related data
+        if (userData != null && userData['role'] == AppConstants.roleVendor) {
+          // Delete technician profile
+          final technicianQuery = await _firestore
+              .collection(AppConstants.techniciansCollection)
+              .where('userId', isEqualTo: userId)
+              .limit(1)
+              .get();
+
+          if (technicianQuery.docs.isNotEmpty) {
+            await technicianQuery.docs.first.reference.delete();
+          }
+
+          // Delete vendor's reviews (if reviews collection exists)
+          try {
+            final reviewsQuery = await _firestore
+                .collection('reviews')
+                .where('technicianId', isEqualTo: userId)
+                .get();
+
+            for (var doc in reviewsQuery.docs) {
+              await doc.reference.delete();
+            }
+          } catch (e) {
+            // Reviews collection might not exist
+          }
+        }
+
+        // Delete user's bookings
+        final bookingsQuery = await _firestore
+            .collection(AppConstants.bookingsCollection)
+            .where('customerId', isEqualTo: userId)
+            .get();
+
+        for (var doc in bookingsQuery.docs) {
+          await doc.reference.delete();
+        }
+
+        // Delete vendor's bookings
+        final vendorBookingsQuery = await _firestore
+            .collection(AppConstants.bookingsCollection)
+            .where('technicianId', isEqualTo: userId)
+            .get();
+
+        for (var doc in vendorBookingsQuery.docs) {
+          await doc.reference.delete();
+        }
+
+        // Delete user's notifications (if notifications collection exists)
+        try {
+          final notificationsQuery = await _firestore
+              .collection('notifications')
+              .where('userId', isEqualTo: userId)
+              .get();
+
+          for (var doc in notificationsQuery.docs) {
+            await doc.reference.delete();
+          }
+        } catch (e) {
+          // Notifications collection might not exist
+        }
+      }
+
+      // Delete user document
+      await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .delete();
+
+      // Delete Firebase Auth account
+      await _auth.currentUser?.delete();
+
+      // Sign out from Google
+      await _googleSignIn.signOut();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
